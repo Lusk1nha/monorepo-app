@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "api:dev": "cargo watch -x run -p api -w ./apps/api",
-    "web:dev": "turbo run dev --scope=@monorepo/web",
+    "web:dev": "turbo run dev --parallel --no-cache",
     "dev": "turbo run dev --parallel --no-cache",
     "format": "pnpm dprint fmt",
     "lint": "turbo run lint --parallel",
@@ -21,11 +21,9 @@
   "devDependencies": {
     "husky": "^9.1.7",
     "prettier": "^3.5.3",
-    "typescript": "^5.8.2"
-  },
-  "dependencies": {
+    "typescript": "^5.8.2",
     "dprint": "^0.49.0",
-    "eslint": "^9",
+    "eslint": "^9.22.0",
     "turbo": "^2.4.4"
   },
   "packageManager": "pnpm@10.6.1"

@@ -11,4 +11,10 @@ path = "src/main.rs"
 name = "api"
 
 [dependencies]
+serde = { version = "1.0.217", features = ["derive"] }
+
+sqlx = { version = "0.8.3", features = ["runtime-tokio-rustls", "macros", "postgres", "chrono"] }
 tokio = { version = "1.44.0", features = ["full"] }
+
+[dev-dependencies]
+sqlx-cli = { version = "0.8.3", features = ["postgres"] }

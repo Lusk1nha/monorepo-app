@@ -7,23 +7,22 @@ settings:
 importers:
 
   .:
-    dependencies:
+    devDependencies:
       dprint:
         specifier: ^0.49.0
         version: 0.49.0
       eslint:
-        specifier: ^9
+        specifier: ^9.22.0
         version: 9.22.0(jiti@2.4.2)
-      turbo:
-        specifier: ^2.4.4
-        version: 2.4.4
-    devDependencies:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
       prettier:
         specifier: ^3.5.3
         version: 3.5.3
+      turbo:
+        specifier: ^2.4.4
+        version: 2.4.4
       typescript:
         specifier: ^5.8.2
         version: 5.8.2

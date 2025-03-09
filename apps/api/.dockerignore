@@ -1,0 +1,12 @@
+# Ignorar arquivos e diretórios desnecessários
+target/
+docker-compose.override.yml
+docker-compose.yml
+Dockerfile*
+*.log
+*.tmp
+*.lock
+node_modules/
+.vscode/
+.idea/
+.git/
