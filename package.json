@@ -1,23 +1,32 @@
 {
-  "name": "todo-app",
+  "name": "monorepo-todo-app",
   "version": "1.0.0",
   "private": true,
-  "workspaces": {
-    "packages": [
-      "apps/*",
-      "libs/*"
-    ]
-  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "format": "prettier  \"{apps,libs}/**/*.{ts,tsx,js,json}\" --ignore-path .gitignore"
+    "api:dev": "cargo watch -x run -p api -w ./apps/api",
+    "web:dev": "turbo run dev --scope=@monorepo/web",
+    "dev": "turbo run dev --parallel --no-cache",
+    "format": "pnpm dprint fmt",
+    "lint": "turbo run lint --parallel",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "devDependencies": {
     "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "typescript": "^5.8.2"
-  }
+  },
+  "dependencies": {
+    "dprint": "^0.49.0",
+    "eslint": "^9",
+    "turbo": "^2.4.4"
+  },
+  "packageManager": "pnpm@10.6.1"
 }

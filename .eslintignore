@@ -7,10 +7,8 @@
 # Swap the comments on the following lines if you don't wish to use zero-installs
 # Documentation here: https://yarnpkg.com/features/zero-installs
 !/.yarn/cache
-# dependencies
+#/.pnp.*
 node_modules
-.pnp
-.pnp.js
 # Logs
 logs
 *.log
@@ -161,11 +159,5 @@ build/**
 dist/**
 
 .next/**
-
-.idea
-
-# misc
-.DS_Store
-*.pem
-
-pnpm-lock.yaml
+dist/
+next.config.js
