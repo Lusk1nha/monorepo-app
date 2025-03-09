@@ -6,25 +6,29 @@ services:
     image: postgres
     restart: always
     ports:
-      - 5432:5432
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data_todo:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}" ]
       interval: 10s
       retries: 5
       timeout: 5s
 
   api:
-    container_name: todo_api
-    build: .
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: "${DATABASE_URL}"
     restart: always
     ports:
-      - 8080:8080
+      - "${APP_PORT}:${APP_PORT}"
     depends_on:
       - db
     environment:

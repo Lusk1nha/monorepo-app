@@ -11,6 +11,7 @@ COPY .env .env
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
+
 # Copiar o arquivo Cargo.toml e Cargo.lock primeiro (para cache)
 COPY Cargo.toml ./ 
 
