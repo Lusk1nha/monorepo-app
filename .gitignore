@@ -1,0 +1,14 @@
+node_modules
+build
+dist
+.next
+.env
+
+
+# Rust / Cargo
+debug/
+target/
+
+**/*.rs.bk
+
+*.pdb
