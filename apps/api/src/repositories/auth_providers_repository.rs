@@ -21,8 +21,6 @@ impl AuthProvidersRepository {
     ) -> Result<AuthProvider, sqlx::Error> {
         let mut tx = self.database.pool.begin().await?;
 
-        println!("create_auth_provider: {:?}", create_auth_provider);
-
         sqlx::query("INSERT INTO auth_providers (id, provider_type) VALUES ($1, $2)")
             .bind(&create_auth_provider.id)
             .bind(&create_auth_provider.provider_type)

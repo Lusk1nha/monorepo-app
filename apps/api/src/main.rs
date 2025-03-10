@@ -9,8 +9,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let environment = EnvironmentApp::new();
 
-    println!("{:?}", environment);
-
     let database = DatabaseApp::new(&environment).await?;
     database.run_migrations().await?;
 
