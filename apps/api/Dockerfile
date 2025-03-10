@@ -1,5 +1,5 @@
 # Etapa 1: Construção do aplicativo
-FROM rust:latest as builder
+FROM rust:latest AS builder
 
 # Definir o diretório de trabalho dentro do contêiner
 WORKDIR /app
@@ -8,8 +8,8 @@ WORKDIR /app
 COPY .env .env
 
 # Definir variáveis de ambiente no contêiner
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
+ARG ENVIRONMENT
+ENV ENVIRONMENT=production
 
 # Copiar o arquivo Cargo.toml e Cargo.lock primeiro (para cache)
 COPY Cargo.toml ./ 
