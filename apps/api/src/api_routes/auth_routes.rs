@@ -10,9 +10,5 @@ pub fn auth_routes(state: Arc<AppState>) -> Router {
             "/register-with-credentials",
             post(AuthController::register_with_credentials),
         )
-        .route(
-            "/register-with-provider",
-            post(AuthController::register_with_provider),
-        )
         .with_state(state)
 }

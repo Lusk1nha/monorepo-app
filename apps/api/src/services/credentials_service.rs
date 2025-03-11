@@ -19,13 +19,13 @@ impl CredentialsService {
         }
     }
 
-    pub async fn get_credential_with_email(
+    pub async fn get_credential_with_user_id(
         &self,
-        email: &str,
+        user_id: &str,
     ) -> Result<Option<Credential>, CredentialsError> {
         let credential = self
             .credentials_repository
-            .get_credential_with_email(&email)
+            .get_credential_with_user_id(&user_id)
             .await
             .map_err(CredentialsError::Database)?;
 
@@ -35,7 +35,6 @@ impl CredentialsService {
     pub async fn create_credential(
         &self,
         user_id: &str,
-        email: &str,
         password: &str,
     ) -> Result<Credential, CredentialsError> {
         let id = create_uuid_v4();
@@ -45,11 +44,12 @@ impl CredentialsService {
         let create_credential_payload = CreateCredential {
             id,
             user_id: user_id.to_string(),
-            email: email.to_string(),
             password_hash,
+            alghorithm: "bcrypt".to_string(),
         };
 
-        let credential = self.credentials_repository
+        let credential = self
+            .credentials_repository
             .create_credential_transaction(&create_credential_payload)
             .await
             .map_err(CredentialsError::Database)?;

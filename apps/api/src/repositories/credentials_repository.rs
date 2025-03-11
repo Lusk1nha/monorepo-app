@@ -8,21 +8,21 @@ pub struct CredentialsRepository {
     database: DatabaseApp,
 }
 
-const CREDENTIALS_FIELDS: &str = "id, user_id, email, password_hash, created_at, updated_at";
+const CREDENTIALS_FIELDS: &str = "id, user_id, password_hash, alghorithm, created_at, updated_at";
 
 impl CredentialsRepository {
     pub fn new(database: DatabaseApp) -> Self {
         Self { database }
     }
 
-    pub async fn get_credential_with_email(
+    pub async fn get_credential_with_user_id(
         &self,
-        email: &str,
+        user_id: &str,
     ) -> Result<Option<Credential>, sqlx::Error> {
         let credential: Option<Credential> = sqlx::query_as::<_, Credential>(&format!(
-            "SELECT {CREDENTIALS_FIELDS} FROM credentials WHERE email = $1"
+            "SELECT {CREDENTIALS_FIELDS} FROM credentials WHERE user_id = $1"
         ))
-        .bind(&email)
+        .bind(&user_id)
         .fetch_optional(&self.database.pool)
         .await?;
 
@@ -36,12 +36,12 @@ impl CredentialsRepository {
         let mut tx = self.database.pool.begin().await?;
 
         sqlx::query(
-            "INSERT INTO credentials (id, user_id, email, password_hash) VALUES ($1, $2, $3, $4)",
+            "INSERT INTO credentials (id, user_id, password_hash, alghorithm) VALUES ($1, $2, $3, $4)",
         )
         .bind(&create_credential.id)
         .bind(&create_credential.user_id)
-        .bind(&create_credential.email)
         .bind(&create_credential.password_hash)
+        .bind(&create_credential.alghorithm)
         .execute(&mut *tx)
         .await?;
 

@@ -15,34 +15,28 @@ impl UsersService {
         Self { users_repository }
     }
 
-    pub async fn create_user_credentials(&self) -> Result<User, UsersError> {
-        let uuid = create_uuid_v4();
-
-        let create_user_payload = CreateUser {
-            id: uuid,
-            name: None,
-            image: None,
-        };
-
+    pub async fn get_user_by_email(&self, email: &str) -> Result<Option<User>, UsersError> {
         let user = self
             .users_repository
-            .create_user_transaction(&create_user_payload)
+            .get_user_by_email(&email)
             .await
             .map_err(UsersError::Database)?;
 
         Ok(user)
     }
 
-    pub async fn create_user_provider(&self, provider_id: &str) -> Result<User, UsersError> {
+    pub async fn create_user_credentials(&self, email: &str) -> Result<User, UsersError> {
+        let id = create_uuid_v4();
+
         let create_user_payload = CreateUser {
-            id: provider_id.to_string(),
+            email: email.into(),
             name: None,
             image: None,
         };
 
         let user = self
             .users_repository
-            .create_user_transaction(&create_user_payload)
+            .create_user_transaction(&id, &create_user_payload)
             .await
             .map_err(UsersError::Database)?;
 
