@@ -9,4 +9,10 @@ pub enum OTPCodesError {
     
     #[error("Error to generate OTP code")]
     GenerateCode,
+
+    #[error("Error in OTP Secret generation")]
+    GenerateSecret,
+
+    #[error("Error to create OTP code")]
+    CreateOTPCode,
 }

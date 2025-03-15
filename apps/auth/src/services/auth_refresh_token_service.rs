@@ -39,8 +39,6 @@ impl AuthRefreshTokensService {
     }
 
     pub async fn create_session(&self, user_id: &str) -> Result<Session, AuthRefreshTokensError> {
-        uuid::Uuid::parse_str(user_id).map_err(|_| AuthRefreshTokensError::InvalidUserIdFormat)?;
-
         let refresh_token = self.generate_secure_refresh_token()?;
         let token_hash = self.hash_refresh_token(&refresh_token)?;
 

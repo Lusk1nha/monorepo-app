@@ -15,6 +15,7 @@ pub struct OTPCode {
     pub created_at: DateTime<Utc>,
 }
 
+#[derive(Debug)]
 pub struct CreateOTPCode {
     pub user_id: String,
     pub code: String,
