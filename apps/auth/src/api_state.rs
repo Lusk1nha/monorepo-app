@@ -67,7 +67,7 @@ impl AppState {
         Ok(Arc::new(Self {
             database,
             environment,
-            
+
             auth_service,
             auth_providers_service,
             auth_refresh_tokens_service,
