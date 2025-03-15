@@ -8,10 +8,5 @@ CREATE TABLE auth_refresh_tokens (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   revoked_at TIMESTAMPTZ
 );
--- Automatically update 'updated_at' on any update
-CREATE OR REPLACE FUNCTION set_timestamp() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = CURRENT_TIMESTAMP;
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_update_timestamp_auth_refresh_tokens BEFORE
 UPDATE ON auth_refresh_tokens FOR EACH ROW EXECUTE FUNCTION set_timestamp();

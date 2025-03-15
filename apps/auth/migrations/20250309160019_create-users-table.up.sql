@@ -13,5 +13,5 @@ CREATE OR REPLACE FUNCTION set_timestamp() RETURNS TRIGGER AS $$ BEGIN NEW.updat
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-CREATE TRIGGER trigger_update_timestamp BEFORE
+CREATE TRIGGER trigger_update_timestamp_users BEFORE
 UPDATE ON users FOR EACH ROW EXECUTE FUNCTION set_timestamp();

@@ -8,12 +8,14 @@ use crate::{
     repositories::{
         auth_providers_repository::AuthProvidersRepository,
         auth_refresh_token_repository::AuthRefreshTokensRepository,
-        credentials_repository::CredentialsRepository, users_repository::UsersRepository,
+        credentials_repository::CredentialsRepository, otp_codes_repository::OTPCodesRepository,
+        users_repository::UsersRepository,
     },
     services::{
         auth_providers_service::AuthProvidersService,
         auth_refresh_token_service::AuthRefreshTokensService, auth_service::AuthService,
-        credentials_service::CredentialsService, users_service::UsersService,
+        credentials_service::CredentialsService, otp_codes_service::OTPCodesService,
+        users_service::UsersService,
     },
     utils::jwt::JwtConfig,
 };
@@ -24,11 +26,12 @@ pub struct AppState {
     pub database: DatabaseApp,
     pub environment: EnvironmentApp,
 
-    // Services
     pub auth_service: Arc<AuthService>,
+
+    pub users_service: Arc<UsersService>,
+    pub otp_service: Arc<OTPCodesService>,
     pub auth_providers_service: Arc<AuthProvidersService>,
     pub auth_refresh_tokens_service: Arc<AuthRefreshTokensService>,
-    pub users_service: Arc<UsersService>,
     pub credentials_service: Arc<CredentialsService>,
 }
 
@@ -37,7 +40,15 @@ impl AppState {
         database: DatabaseApp,
         environment: EnvironmentApp,
     ) -> Result<Arc<Self>, anyhow::Error> {
-        let users_service = Arc::new(UsersService::new(UsersRepository::new(database.clone())));
+        let otp_service = Arc::new(OTPCodesService::new(
+            OTPCodesRepository::new(database.clone()),
+            TimeDelta::minutes(5),
+        ));
+
+        let users_service = Arc::new(UsersService::new(
+            UsersRepository::new(database.clone()),
+            otp_service.clone(),
+        ));
 
         let credentials_service = Arc::new(CredentialsService::new(CredentialsRepository::new(
             database.clone(),
@@ -62,16 +73,19 @@ impl AppState {
             Arc::clone(&users_service),
             Arc::clone(&credentials_service),
             Arc::clone(&auth_refresh_tokens_service),
+            Arc::clone(&otp_service),
         ));
 
         Ok(Arc::new(Self {
             database,
             environment,
-            
+
             auth_service,
+
+            users_service,
+            otp_service,
             auth_providers_service,
             auth_refresh_tokens_service,
-            users_service,
             credentials_service,
         }))
     }

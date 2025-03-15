@@ -4,12 +4,11 @@ use std::sync::Arc;
 use crate::{
     entities::{auth_refresh_token_entity::Session, user_entity::User},
     errors::auth_service_errors::AuthServiceError,
-    utils::password::verify_hash_password,
 };
 
 use super::{
     auth_refresh_token_service::AuthRefreshTokensService, credentials_service::CredentialsService,
-    users_service::UsersService,
+    otp_codes_service::OTPCodesService, users_service::UsersService,
 };
 
 #[derive(Clone)]
@@ -17,6 +16,7 @@ pub struct AuthService {
     users_service: Arc<UsersService>,
     credentials_service: Arc<CredentialsService>,
     auth_refresh_tokens_service: Arc<AuthRefreshTokensService>,
+    otp_codes_service: Arc<OTPCodesService>,
 }
 
 impl AuthService {
@@ -24,11 +24,13 @@ impl AuthService {
         users_service: Arc<UsersService>,
         credentials_service: Arc<CredentialsService>,
         auth_refresh_tokens_service: Arc<AuthRefreshTokensService>,
+        otp_codes_service: Arc<OTPCodesService>,
     ) -> Self {
         Self {
             users_service,
             credentials_service,
             auth_refresh_tokens_service,
+            otp_codes_service,
         }
     }
 
@@ -51,15 +53,11 @@ impl AuthService {
         user: &User,
         password: &str,
     ) -> Result<Session, AuthServiceError> {
-        let Some(credential) = self
+        if !self
             .credentials_service
-            .get_credential_by_user_id(&user.id)
+            .verify_user_credentials(&user.id, &password)
             .await?
-        else {
-            return Err(AuthServiceError::InvalidCredentials);
-        };
-
-        if !verify_hash_password(password, &credential.password_hash)? {
+        {
             return Err(AuthServiceError::InvalidCredentials);
         }
 

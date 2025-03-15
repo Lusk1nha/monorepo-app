@@ -1,9 +1,11 @@
 use crate::{
-    entities::credential_entity::{CreateCredential, Credential},
+    entities::credential_entity::{CreateCredential, Credential, UpdateCredential},
     errors::credentials_errors::CredentialsError,
     repositories::credentials_repository::CredentialsRepository,
-    utils::{password::hash_password, uuid::create_uuid_v4},
+    utils::uuid::create_uuid_v4,
 };
+
+use bcrypt::{DEFAULT_COST, hash, verify};
 
 #[derive(Clone)]
 pub struct CredentialsService {
@@ -30,13 +32,34 @@ impl CredentialsService {
         Ok(credential)
     }
 
+    pub async fn verify_user_credentials(
+        &self,
+        user_id: &str,
+        password: &str,
+    ) -> Result<bool, CredentialsError> {
+        let credential = self.get_credential_by_user_id(user_id).await?;
+
+        match credential {
+            Some(credential) => {
+                let is_valid = self
+                    .verify_hash_password(password, &credential.password_hash)
+                    .map_err(CredentialsError::Password)?;
+
+                Ok(is_valid)
+            }
+            None => Ok(false),
+        }
+    }
+
     pub async fn create_credential(
         &self,
         user_id: &str,
         password: &str,
     ) -> Result<Credential, CredentialsError> {
         let id = create_uuid_v4();
-        let password_hash = hash_password(&password).map_err(CredentialsError::Password)?;
+        let password_hash = self
+            .hash_password(password)
+            .map_err(CredentialsError::Password)?;
 
         let payload = CreateCredential {
             user_id: user_id.to_string(),
@@ -51,5 +74,40 @@ impl CredentialsService {
             .map_err(CredentialsError::Database)?;
 
         Ok(credential)
+    }
+
+    pub async fn update_credential(
+        &self,
+        user_id: &str,
+        password: &str,
+    ) -> Result<Credential, CredentialsError> {
+        let password_hash = self
+            .hash_password(password)
+            .map_err(CredentialsError::Password)?;
+
+        let payload = UpdateCredential {
+            password_hash,
+            algorithm: "bcrypt".to_string(),
+        };
+
+        let credential = self
+            .credentials_repository
+            .update_credential(user_id, &payload)
+            .await
+            .map_err(CredentialsError::Database)?;
+
+        Ok(credential)
+    }
+
+    pub fn verify_hash_password(
+        &self,
+        password: &str,
+        hash: &str,
+    ) -> Result<bool, bcrypt::BcryptError> {
+        verify(password, hash)
+    }
+
+    fn hash_password(&self, password: &str) -> Result<String, bcrypt::BcryptError> {
+        hash(password, DEFAULT_COST)
     }
 }

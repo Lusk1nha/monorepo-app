@@ -1,6 +1,8 @@
 use thiserror::Error;
 
-use super::{credentials_errors::CredentialsError, users_errors::UsersError};
+use super::{
+    credentials_errors::CredentialsError, otp_codes_errors::OTPCodesError, users_errors::UsersError,
+};
 
 #[derive(Error, Debug)]
 pub enum AuthServiceError {
@@ -12,6 +14,9 @@ pub enum AuthServiceError {
 
     #[error("Create credential error: {0}")]
     CreateCredential(#[from] CredentialsError),
+
+    #[error("Error to generate OTP secret: {0}")]
+    CreateOTPCode(#[from] OTPCodesError),
 
     #[error("Invalid credentials")]
     InvalidCredentials,
@@ -29,5 +34,5 @@ pub enum AuthServiceError {
     CreateAuthRefreshTokenError,
 
     #[error("Revoke token error")]
-    RevokeRefreshTokenError
+    RevokeRefreshTokenError,
 }

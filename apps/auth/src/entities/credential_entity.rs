@@ -20,3 +20,8 @@ pub struct CreateCredential {
     pub password_hash: String,
     pub algorithm: String,
 }
+
+pub struct UpdateCredential {
+    pub password_hash: String,
+    pub algorithm: String,
+}

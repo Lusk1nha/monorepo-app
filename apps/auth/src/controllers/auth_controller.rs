@@ -108,12 +108,14 @@ impl AuthController {
                 internal_server_error("Error logging in with credentials.")
             })?;
 
+        Self::sync_update_last_login(&state, &user.id).await;
+
+        tracing::info!("User {} logged in successfully", user.id);
+        
         let jar =
             create_refresh_token_cookie(jar, &session.refresh_token, &session.refresh_token_exp);
 
         let headers = HeaderMap::new();
-
-        tracing::info!("User {} logged in successfully", user.id);
 
         Ok((
             StatusCode::OK,
@@ -186,5 +188,16 @@ impl AuthController {
         let headers = HeaderMap::new();
 
         Ok((StatusCode::NO_CONTENT, jar, headers, ()))
+    }
+
+    async fn sync_update_last_login(state: &Arc<AppState>, user_id: &str) {
+        let state = Arc::clone(state);
+        let user_id = user_id.to_string();
+
+        tokio::spawn(async move {
+            if let Err(e) = state.users_service.update_last_login_at(&user_id).await {
+                tracing::error!("Failed to update last login for user {}: {}", user_id, e);
+            }
+        });
     }
 }
