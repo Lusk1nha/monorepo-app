@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS otp_codes (
+  id SERIAL PRIMARY KEY NOT NULL,
+  user_id CHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  code VARCHAR(6) NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  used_at TIMESTAMPTZ,
+  is_used BOOLEAN NOT NULL DEFAULT FALSE
+);
+CREATE TRIGGER trigger_update_timestamp_otp_codes BEFORE
+UPDATE ON otp_codes FOR EACH ROW EXECUTE FUNCTION set_timestamp();
+CREATE INDEX idx_otp_codes_user_id ON otp_codes(user_id);
+ALTER TABLE users
+ADD COLUMN is_2fa_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  ADD COLUMN is_email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN otp_secret TEXT;
