@@ -45,6 +45,39 @@ pub struct LoginWithCredentials {
 
 #[derive(Serialize)]
 pub struct LoginWithCredentialsResponse {
+    pub user_id: String,
+    pub message: String,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct CheckEmailAvailabilityRequest {
+    #[validate(
+        email(message = "Email is invalid"),
+        length(min = 1, message = "Email is required")
+    )]
+    pub email: String,
+}
+
+#[derive(Serialize)]
+pub struct CheckEmailAvailabilityResponse {
+    #[serde(rename = "isAvailable")]
+    pub is_available: bool,
+
+    pub email: String,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct ValidateOTPCodeRequest {
+    #[validate(length(min = 6, max = 6, message = "OTP code must be 6 characters long"))]
+    pub code: String,
+
+    #[serde(rename = "userId")]
+    #[validate(length(min = 1, message = "User ID is required"))]
+    pub user_id: String,
+}
+
+#[derive(Serialize)]
+pub struct TokenResponse {
     #[serde(rename = "accessToken")]
     access_token: String,
 
@@ -52,7 +85,7 @@ pub struct LoginWithCredentialsResponse {
     expires_at: DateTime<Utc>,
 }
 
-impl From<Session> for LoginWithCredentialsResponse {
+impl From<Session> for TokenResponse {
     fn from(session: Session) -> Self {
         Self {
             access_token: session.access_token,

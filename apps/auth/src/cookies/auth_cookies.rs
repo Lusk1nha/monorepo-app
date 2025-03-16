@@ -1,5 +1,6 @@
 use axum_extra::extract::{CookieJar, cookie::Cookie};
 use chrono::{DateTime, Utc};
+use time::{Duration, OffsetDateTime};
 
 pub const REFRESH_TOKEN_NAME: &str = "refreshToken";
 
@@ -26,5 +27,15 @@ pub fn create_refresh_token_cookie(
 }
 
 pub fn remove_refresh_token_cookie(jar: CookieJar) -> CookieJar {
-    jar.remove(REFRESH_TOKEN_NAME)
+    let remove_cookie = Cookie::build(REFRESH_TOKEN_NAME)
+        .path("/")
+        .secure(true)
+        .http_only(true)
+        .max_age(Duration::days(0))
+        .expires(OffsetDateTime::now_utc())
+        .build();
+
+    let jar = jar.add(remove_cookie);
+
+    jar
 }

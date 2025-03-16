@@ -34,5 +34,6 @@ fn api_routes(state: Arc<AppState>) -> Router {
     root_routes
         .nest(AUTH_NEST_PATH, auth_routes)
         .nest(USER_NEST_PATH, user_routes)
+        .fallback(NotFoundController::not_found_route)
         .layer(Extension(state))
 }

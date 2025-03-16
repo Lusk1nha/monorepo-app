@@ -25,11 +25,31 @@ impl OTPCodesService {
         }
     }
 
-    pub async fn find_active_user_otp(
-        &self,
-        user_id: &str,
-    ) -> Result<Option<OTPCode>, OTPCodesError> {
-        todo!()
+    async fn find_active_user_otp(&self, user_id: &str) -> Result<Option<OTPCode>, OTPCodesError> {
+        self.otp_codes_repository
+            .find_active_user_otp(user_id)
+            .await
+            .map_err(OTPCodesError::Database)
+    }
+
+    pub async fn validate_otp_code(&self, user_id: &str, code: &str) -> Result<(), OTPCodesError> {
+        let otp = self.find_active_user_otp(user_id).await?;
+
+        if otp.is_none() {
+            return Err(OTPCodesError::OTPNotFound);
+        }
+
+        let otp = otp.unwrap();
+
+        if otp.code != code {
+            return Err(OTPCodesError::InvalidCode);
+        }
+
+        self.otp_codes_repository
+            .use_otp_code(&otp.id, user_id)
+            .await?;
+
+        Ok(())
     }
 
     pub async fn create_otp_code(
@@ -49,8 +69,6 @@ impl OTPCodesService {
             code,
             expires_at,
         };
-
-        println!("Payload: {:?}", payload);
 
         self.otp_codes_repository
             .create_otp_code(&payload)

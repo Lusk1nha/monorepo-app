@@ -67,6 +67,29 @@ impl AuthService {
             .map_err(|_| AuthServiceError::CreateAuthRefreshTokenError)
     }
 
+    pub async fn login_with_otp(
+        &self,
+        user_id: &str,
+        code: &str,
+    ) -> Result<Session, AuthServiceError> {
+        let user = self.users_service.get_user_by_id(&user_id).await?;
+
+        if user.is_none() {
+            return Err(AuthServiceError::UserNotFound);
+        }
+
+        let user = user.unwrap();
+
+        self.otp_codes_service
+            .validate_otp_code(&user.id, &code)
+            .await?;
+
+        self.auth_refresh_tokens_service
+            .create_session(&user.id)
+            .await
+            .map_err(|_| AuthServiceError::CreateAuthRefreshTokenError)
+    }
+
     pub async fn create_new_refresh_token(
         &self,
         refresh_token: &str,

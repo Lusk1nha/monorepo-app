@@ -6,7 +6,7 @@ use super::repository_errors::RepositoryError;
 pub enum OTPCodesError {
     #[error("Error in OTP code repository: {0}")]
     Database(#[from] RepositoryError),
-    
+
     #[error("Error to generate OTP code")]
     GenerateCode,
 
@@ -15,4 +15,13 @@ pub enum OTPCodesError {
 
     #[error("Error to create OTP code")]
     CreateOTPCode,
+
+    #[error("OTP code not found")]
+    OTPNotFound,
+
+    #[error("Invalid OTP code")]
+    InvalidCode,
+
+    #[error("Expired OTP code")]
+    ExpiredCode,
 }

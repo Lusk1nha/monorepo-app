@@ -61,4 +61,30 @@ impl OTPCodesRepository {
 
         Ok(otp_code)
     }
+
+    pub async fn use_otp_code(&self, id: &i32, user_id: &str) -> Result<OTPCode, RepositoryError> {
+        let mut tx = self.database.pool.begin().await?;
+
+        let otp_code = sqlx::query_as::<_, OTPCode>(&format!(
+            "UPDATE {} SET is_used = true, used_at = now()
+            WHERE id = $1 AND user_id = $2
+            RETURNING {}",
+            Self::TABLE,
+            Self::FIELDS
+        ))
+        .bind(&id)
+        .bind(&user_id)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(|e| match e {
+            sqlx::Error::Database(db_err) if db_err.is_unique_violation() => {
+                RepositoryError::UniqueViolation("id".into())
+            }
+            _ => RepositoryError::from(e),
+        })?;
+
+        tx.commit().await?;
+
+        Ok(otp_code)
+    }
 }

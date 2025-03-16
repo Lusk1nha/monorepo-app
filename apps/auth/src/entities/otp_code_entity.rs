@@ -6,13 +6,13 @@ use sqlx::prelude::FromRow;
 pub struct OTPCode {
     pub id: i32,
     pub user_id: String,
-
     pub code: String,
-    pub expires_at: DateTime<Utc>,
-    pub used_at: Option<DateTime<Utc>>,
-    pub is_used: bool,
 
+    pub expires_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
+    pub used_at: Option<DateTime<Utc>>,
+
+    pub is_used: bool,
 }
 
 #[derive(Debug)]

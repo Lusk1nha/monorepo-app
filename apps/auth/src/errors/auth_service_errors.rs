@@ -1,13 +1,13 @@
 use thiserror::Error;
 
 use super::{
-    credentials_errors::CredentialsError, otp_codes_errors::OTPCodesError, users_errors::UsersError,
+    credentials_errors::CredentialsError, otp_codes_errors::OTPCodesError, repository_errors::RepositoryError, users_errors::UsersError
 };
 
 #[derive(Error, Debug)]
 pub enum AuthServiceError {
     #[error("Database error: {0}")]
-    TransactionError(#[from] sqlx::Error),
+    Database(#[from] RepositoryError),
 
     #[error("Create user error: {0}")]
     CreateUser(#[from] UsersError),

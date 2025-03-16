@@ -10,15 +10,18 @@ use axum_extra::extract::CookieJar;
 
 use crate::{
     api_state::AppState,
-    cookies::auth_cookies::{REFRESH_TOKEN_NAME, create_refresh_token_cookie},
+    cookies::auth_cookies::{
+        REFRESH_TOKEN_NAME, create_refresh_token_cookie, remove_refresh_token_cookie,
+    },
     core::{
         axum_response::ValidatedJson,
         error_response::ErrorResponse,
         errors_types::{bad_request_error, internal_server_error},
     },
     models::auth_model::{
-        LoginWithCredentials, LoginWithCredentialsResponse, RegisterWithCredentials,
-        RegisterWithCredentialsResponse,
+        CheckEmailAvailabilityRequest, CheckEmailAvailabilityResponse, LoginWithCredentials,
+        LoginWithCredentialsResponse, RegisterWithCredentials, RegisterWithCredentialsResponse,
+        TokenResponse, ValidateOTPCodeRequest,
     },
 };
 
@@ -29,7 +32,7 @@ impl AuthController {
         State(state): State<Arc<AppState>>,
         ValidatedJson(payload): ValidatedJson<RegisterWithCredentials>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
-        let email = payload.email;
+        let email = payload.email.trim().to_lowercase();
         let password = payload.password;
 
         let existing_user = state
@@ -69,11 +72,10 @@ impl AuthController {
     }
 
     pub async fn login_with_credentials(
-        jar: CookieJar,
         State(state): State<Arc<AppState>>,
         ValidatedJson(payload): ValidatedJson<LoginWithCredentials>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
-        let email = payload.email;
+        let email = payload.email.trim().to_lowercase();
         let password = payload.password;
 
         let existing_user = state
@@ -95,33 +97,79 @@ impl AuthController {
 
         let user = existing_user.unwrap();
 
-        let session = state
-            .auth_service
-            .login_with_credentials(&user, &password.as_str())
+        if !state
+            .credentials_service
+            .verify_user_credentials(&user.id, &password)
             .await
             .map_err(|e| {
                 tracing::error!(
                     error = %e,
                     email = %email,
-                    "Error logging in with credentials."
+                    "Error verifying user credentials."
                 );
-                internal_server_error("Error logging in with credentials.")
+                internal_server_error("Error verifying user credentials.")
+            })?
+        {
+            return Err(bad_request_error("Invalid credentials."));
+        }
+
+        state
+            .otp_service
+            .create_otp_code(&user.id, &user.otp_secret)
+            .await
+            .map_err(|e| {
+                tracing::error!(
+                    error = %e,
+                    user_id = %user.id,
+                    "Error creating OTP code."
+                );
+                internal_server_error("Error creating OTP code.")
             })?;
 
         Self::sync_update_last_login(&state, &user.id).await;
 
         tracing::info!("User {} logged in successfully", user.id);
-        
-        let jar =
-            create_refresh_token_cookie(jar, &session.refresh_token, &session.refresh_token_exp);
+
+        Ok((
+            StatusCode::OK,
+            Json(LoginWithCredentialsResponse {
+                user_id: user.id,
+                message: "Logged in successfully, OTP code sent to your email.".to_string(),
+            }),
+        ))
+    }
+
+    pub async fn validate_otp_code(
+        jar: CookieJar,
+        State(state): State<Arc<AppState>>,
+        ValidatedJson(payload): ValidatedJson<ValidateOTPCodeRequest>,
+    ) -> Result<impl IntoResponse, ErrorResponse> {
+        let code = payload.code.trim();
+        let user_id = payload.user_id.trim();
+
+        let session = state
+            .auth_service
+            .login_with_otp(&user_id, &code)
+            .await
+            .map_err(|e| {
+                tracing::error!(
+                    error = %e,
+                    user_id = %user_id,
+                    "Error logging in with OTP."
+                );
+                internal_server_error("Error logging in with OTP.")
+            })?;
 
         let headers = HeaderMap::new();
+
+        let jar =
+            create_refresh_token_cookie(jar, &session.refresh_token, &session.refresh_token_exp);
 
         Ok((
             StatusCode::OK,
             jar,
             headers,
-            Json(LoginWithCredentialsResponse::from(session)),
+            Json(TokenResponse::from(session)),
         ))
     }
 
@@ -158,7 +206,7 @@ impl AuthController {
             StatusCode::OK,
             jar,
             headers,
-            Json(LoginWithCredentialsResponse::from(new_session)),
+            Json(TokenResponse::from(new_session)),
         ))
     }
 
@@ -183,15 +231,43 @@ impl AuthController {
                 internal_server_error("Error revoking refresh token.")
             })?;
 
-        let jar = jar.remove(REFRESH_TOKEN_NAME);
+        let jar = remove_refresh_token_cookie(jar);
 
         let headers = HeaderMap::new();
 
         Ok((StatusCode::NO_CONTENT, jar, headers, ()))
     }
 
+    pub async fn check_email_availability(
+        State(state): State<Arc<AppState>>,
+        ValidatedJson(payload): ValidatedJson<CheckEmailAvailabilityRequest>,
+    ) -> Result<impl IntoResponse, ErrorResponse> {
+        let email = payload.email.trim().to_lowercase();
+
+        let is_available = state
+            .users_service
+            .is_email_available(&email)
+            .await
+            .map_err(|e| {
+                tracing::error!(
+                    error = %e,
+                    email = %email,
+                    "Error checking email availability."
+                );
+                internal_server_error("Error checking email availability.")
+            })?;
+
+        Ok((
+            StatusCode::OK,
+            Json(CheckEmailAvailabilityResponse {
+                email,
+                is_available,
+            }),
+        ))
+    }
+
     async fn sync_update_last_login(state: &Arc<AppState>, user_id: &str) {
-        let state = Arc::clone(state);
+        let state = state.clone();
         let user_id = user_id.to_string();
 
         tokio::spawn(async move {
