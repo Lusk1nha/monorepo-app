@@ -12,6 +12,8 @@ path = "src/main.rs"
 name = "auth"
 
 [dependencies]
+mail_sender = { path = "../../packages/mail-sender" }
+
 axum = "0.8.1"
 axum-extra = { version = "0.10.0", features = ["cookie"] }
 

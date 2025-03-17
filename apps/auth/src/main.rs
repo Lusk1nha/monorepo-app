@@ -2,6 +2,7 @@ use auth::{
     api_state::AppState, database::DatabaseApp, environment::EnvironmentApp,
     logging::tracing::init_logger, router::create_api_routes, server::start_server,
 };
+
 use std::sync::Arc;
 use tokio::sync::Notify;
 

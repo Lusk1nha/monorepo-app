@@ -2,6 +2,8 @@ use dotenv::dotenv;
 use std::env;
 use tracing::{info, warn};
 
+use mail_sender::SMTPConfig;
+
 #[derive(Debug, Clone)]
 pub struct EnvironmentApp {
     pub database_url: String,
@@ -9,6 +11,8 @@ pub struct EnvironmentApp {
     pub is_prod: bool,
     pub jwt_secret: String,
     pub version: String,
+
+    pub smtp_config: SMTPConfig,
 }
 
 impl EnvironmentApp {
@@ -27,6 +31,8 @@ impl EnvironmentApp {
         let environment = Self::get_env_var("ENVIRONMENT");
         let is_prod = environment == "production";
 
+        let smtp_config = Self::get_smpt_config();
+
         if is_prod {
             info!("Running in production mode");
         } else {
@@ -39,6 +45,25 @@ impl EnvironmentApp {
             is_prod,
             jwt_secret,
             version,
+
+            smtp_config,
+        }
+    }
+
+    fn get_smpt_config() -> SMTPConfig {
+        let smtp_server = Self::get_env_var("SMTP_SERVER");
+        let smtp_port = Self::get_env_var_with_default("SMTP_PORT", "587")
+            .parse::<u16>()
+            .expect("SMTP_PORT must be a valid port number");
+
+        let smtp_username = Self::get_env_var("SMTP_USERNAME");
+        let smtp_password = Self::get_env_var("SMTP_PASSWORD");
+
+        SMTPConfig {
+            smtp_server,
+            smtp_port,
+            smtp_username,
+            smtp_password,
         }
     }
 

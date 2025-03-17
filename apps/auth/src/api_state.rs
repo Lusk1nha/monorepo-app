@@ -1,6 +1,7 @@
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 
 use chrono::TimeDelta;
+use mail_sender::{MailService, SMTPConfig};
 
 use crate::{
     database::DatabaseApp,
@@ -27,6 +28,7 @@ pub struct AppState {
     pub environment: EnvironmentApp,
 
     pub auth_service: Arc<AuthService>,
+    pub mail_service: Arc<MailService>,
 
     pub users_service: Arc<UsersService>,
     pub otp_service: Arc<OTPCodesService>,
@@ -36,7 +38,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(
+    pub async fn new(
         database: DatabaseApp,
         environment: EnvironmentApp,
     ) -> Result<Arc<Self>, anyhow::Error> {
@@ -76,11 +78,14 @@ impl AppState {
             Arc::clone(&otp_service),
         ));
 
+        let mail_service = Arc::new(Self::mail_deliver_service(&environment.smtp_config).await);
+
         Ok(Arc::new(Self {
             database,
             environment,
 
             auth_service,
+            mail_service,
 
             users_service,
             otp_service,
@@ -88,5 +93,16 @@ impl AppState {
             auth_refresh_tokens_service,
             credentials_service,
         }))
+    }
+
+    async fn mail_deliver_service(config: &SMTPConfig) -> MailService {
+        let source_dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+        let template_dir = source_dir.join("templates");
+
+        let mail = MailService::new(config.clone(), Some(template_dir))
+            .await
+            .expect("Failed to create mail service");
+
+        mail
     }
 }
