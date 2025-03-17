@@ -113,7 +113,7 @@ impl AuthController {
             return Err(bad_request_error("Invalid credentials."));
         }
 
-        state
+        let _ = state
             .otp_service
             .create_otp_code(&user.id, &user.otp_secret)
             .await

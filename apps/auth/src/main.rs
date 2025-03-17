@@ -20,10 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     database.run_migrations().await?;
     tracing::info!("Database migrations executed");
 
-    let app_state = AppState::new(
-        database.clone(), // Clone seguro se DatabaseApp usar Arc internamente
-        environment.clone(),
-    )?;
+    let app_state = AppState::new(database.clone(), environment.clone()).await?;
     tracing::debug!("Application state initialized");
 
     let api_routes = create_api_routes(app_state);

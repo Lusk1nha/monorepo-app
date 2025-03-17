@@ -99,7 +99,7 @@ impl AppState {
         let source_dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         let template_dir = source_dir.join("templates");
 
-        let mail = MailService::new(config.clone(), Some(template_dir))
+        let mail = MailService::new(config.clone(), Some(template_dir), 100)
             .await
             .expect("Failed to create mail service");
 
