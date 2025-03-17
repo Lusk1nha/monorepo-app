@@ -7,8 +7,6 @@ CREATE TABLE IF NOT EXISTS otp_codes (
   used_at TIMESTAMPTZ,
   is_used BOOLEAN NOT NULL DEFAULT FALSE
 );
-CREATE TRIGGER trigger_update_timestamp_otp_codes BEFORE
-UPDATE ON otp_codes FOR EACH ROW EXECUTE FUNCTION set_timestamp();
 CREATE INDEX idx_otp_codes_user_id ON otp_codes(user_id);
 ALTER TABLE users
 ADD COLUMN is_2fa_enabled BOOLEAN NOT NULL DEFAULT TRUE,
