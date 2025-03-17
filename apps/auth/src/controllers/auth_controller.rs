@@ -52,7 +52,7 @@ impl AuthController {
             return Err(bad_request_error("User with this email already exists."));
         }
 
-        let user = state
+        state
             .auth_service
             .register_user_with_credentials(&email, &password)
             .await
@@ -67,7 +67,9 @@ impl AuthController {
 
         Ok((
             StatusCode::CREATED,
-            Json(RegisterWithCredentialsResponse::from(user)),
+            Json(RegisterWithCredentialsResponse {
+                message: "User registered successfully.".to_string(),
+            }),
         ))
     }
 

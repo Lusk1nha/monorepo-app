@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::entities::{auth_refresh_token_entity::Session, user_entity::User};
+use crate::entities::auth_refresh_token_entity::Session;
 
 #[derive(Deserialize, Validate)]
 pub struct RegisterWithCredentials {
@@ -18,17 +18,7 @@ pub struct RegisterWithCredentials {
 
 #[derive(Serialize)]
 pub struct RegisterWithCredentialsResponse {
-    pub id: String,
     pub message: String,
-}
-
-impl From<User> for RegisterWithCredentialsResponse {
-    fn from(user: User) -> Self {
-        Self {
-            id: user.id,
-            message: "User created successfully".to_string(),
-        }
-    }
 }
 
 #[derive(Deserialize, Validate)]
@@ -45,6 +35,7 @@ pub struct LoginWithCredentials {
 
 #[derive(Serialize)]
 pub struct LoginWithCredentialsResponse {
+    #[serde(rename = "userId")]
     pub user_id: String,
     pub message: String,
 }
