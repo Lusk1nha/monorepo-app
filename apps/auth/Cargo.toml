@@ -12,12 +12,15 @@ path = "src/main.rs"
 name = "auth"
 
 [dependencies]
+mail_sender = { path = "../../packages/mail-sender" }
+
 axum = "0.8.1"
 axum-extra = { version = "0.10.0", features = ["cookie"] }
 
+tera = { workspace = true }
+
 anyhow = "1.0.97"
 dotenv = "0.15.0"
-serde = { version = "1.0.217", features = ["derive"] }
 
 sqlx = { version = "0.8.3", features = [
   "runtime-tokio-rustls",
@@ -26,19 +29,24 @@ sqlx = { version = "0.8.3", features = [
   "chrono",
 ] }
 
-tokio = { version = "1.44.0", features = ["full"] }
+
+tokio = { workspace = true, features = ["full"] }
+lettre = { workspace = true, default-features = false }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+
+
 tower = "0.5.2"
 tower-http = { version = "0.6.2", features = ["cors", "fs"] }
 
 once_cell = "1.21.0"
-thiserror = "2.0.12"
 tracing = "0.1.41"
 tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 validator = { version = "0.20.0", features = ["derive"] }
 
 bcrypt = "0.17.0"
-chrono = { version = "0.4.40", features = ["serde"] }
 time = "0.3.37"
 uuid = { version = "1.15.1", features = ["serde", "v4"] }
 jsonwebtoken = "9.3.1"
@@ -47,7 +55,6 @@ base64 = "0.22.1"
 rand = { version = "0.9.0", features = ["os_rng"] }
 rand_core = "0.9.3"
 totp-rs = "5.6.0"
-
 
 [dev-dependencies]
 sqlx-cli = { version = "0.8.3", features = ["postgres"] }

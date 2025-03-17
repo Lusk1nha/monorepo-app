@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código OTP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .header {
+            background: #007bff;
+            color: #ffffff;
+            padding: 10px;
+            font-size: 24px;
+            border-radius: 8px 8px 0 0;
+        }
+        .otp-code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            display: inline-block;
+            border-radius: 5px;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #666666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Seu Código OTP</div>
+        <p>Use o código abaixo para continuar seu processo de login ou verificação.</p>
+        <div class="otp-code">{{ code }}</div>
+        <p>Este código expira em 10 minutos.</p>
+        <div class="footer">
+            <p>&copy; 2025 - Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

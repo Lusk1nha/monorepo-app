@@ -1,0 +1,157 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'auth'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=auth"
+        ],
+        "filter": {
+          "name": "auth",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'auth'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=auth",
+          "--package=auth"
+        ],
+        "filter": {
+          "name": "auth",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'auth'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=auth",
+          "--package=auth"
+        ],
+        "filter": {
+          "name": "auth",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'mail_sender'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=mail_sender"
+        ],
+        "filter": {
+          "name": "mail_sender",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'mail_sender'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=mail_sender",
+          "--package=mail_sender"
+        ],
+        "filter": {
+          "name": "mail_sender",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'mail_sender'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=mail_sender",
+          "--package=mail_sender"
+        ],
+        "filter": {
+          "name": "mail_sender",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'todos'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=todos",
+          "--package=todos"
+        ],
+        "filter": {
+          "name": "todos",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'todos'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=todos",
+          "--package=todos"
+        ],
+        "filter": {
+          "name": "todos",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
