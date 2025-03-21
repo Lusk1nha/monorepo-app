@@ -1,14 +1,15 @@
 use auth::{
     api_state::AppState, database::DatabaseApp, environment::EnvironmentApp,
-    logging::tracing::init_logger, router::create_api_routes, server::start_server,
+    router::create_api_routes, server::start_server,
 };
+use log_service::LogService;
 
 use std::sync::Arc;
 use tokio::sync::Notify;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let _guard = init_logger();
+    let _guard = LogService::default()?;
     tracing::info!("Starting application initialization");
 
     let environment = EnvironmentApp::new();

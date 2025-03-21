@@ -148,6 +148,7 @@ dependencies = [
  "dotenv",
  "jsonwebtoken",
  "lettre",
+ "log_service",
  "mail_sender",
  "once_cell",
  "rand 0.9.0",
@@ -164,8 +165,6 @@ dependencies = [
  "tower",
  "tower-http",
  "tracing",
- "tracing-appender",
- "tracing-subscriber",
  "uuid",
  "validator",
 ]
@@ -1663,15 +1662,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
 
 [[package]]
+name = "log_service"
+version = "1.0.0"
+dependencies = [
+ "thiserror 2.0.12",
+ "tracing",
+ "tracing-appender",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "mail_sender"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "lettre",
+ "serde_json",
  "tempfile",
  "tera",
  "thiserror 2.0.12",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -3158,8 +3169,10 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 name = "todos"
 version = "0.1.0"
 dependencies = [
+ "log_service",
  "sqlx",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -3360,6 +3373,7 @@ dependencies = [
  "sharded-slab",
  "smallvec",
  "thread_local",
+ "time",
  "tracing",
  "tracing-core",
  "tracing-log",

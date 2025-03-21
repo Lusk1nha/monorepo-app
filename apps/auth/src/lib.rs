@@ -8,7 +8,6 @@ pub mod emails;
 pub mod entities;
 pub mod environment;
 pub mod errors;
-pub mod logging;
 pub mod middlewares;
 pub mod models;
 pub mod repositories;

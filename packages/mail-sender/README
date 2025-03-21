@@ -1,0 +1,25 @@
+# Mail Service
+
+The mail service is a simple wrapper around the `lettre` crate.
+It provides a simple way to send emails using an SMTP server.
+The service is initialized with an `SMTPConfig` struct that contains the following fields:
+
+- `smtp_server`: The address of the SMTP server.
+- `smtp_port`: The port of the SMTP server.
+- `smtp_username`: The username for the SMTP server.
+- `smtp_password`: The password for the SMTP server.
+  The service can be used to queue email requests for sending.
+  The email requests contain the following fields:
+- `from`: The sender's email address.
+- `to`: The recipient's email address.
+- `header`: The content type of the email.
+- `subject`: The subject of the email.
+- `template_name`: The name of the email template.
+- `context`: The context data for rendering the email template.
+  The service uses a worker task to process email requests asynchronously.
+  The worker task sends the email using the configured SMTP server.
+  The service also provides a method to queue email requests for sending.
+  The email requests are processed in a first-in-first-out (FIFO) order.
+  The service logs errors and information messages using the `tracing` crate.
+  The service can be initialized with the default configuration by calling `MailService::new()`.
+  The service can be customized by providing an optional template directory.

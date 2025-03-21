@@ -1,0 +1,14 @@
+# Log Service
+
+The log service is a simple wrapper around the `tracing` and `tracing-subscriber` crates.
+It provides a simple way to configure logging for the application.
+The service is initialized with a `LogConfig` struct that contains the following fields:
+
+- `log_directory`: The directory where the log files will be stored.
+- `file_prefix`: The prefix for the log files.
+- `rotation`: The rotation strategy for the log files (e.g., hourly, daily, etc.).
+- `default_filter`: The default log level filter for the application.
+- `console_filter`: The log level filter for the console output.
+- `file_filter`: The log level filter for the file output.
+  The service can be initialized with the default configuration by calling `LogService::default()`.
+  The log service can be used to log messages at different levels (e.g., info, debug, error, etc.).

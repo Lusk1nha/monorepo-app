@@ -12,7 +12,6 @@ pub struct EmailSender {
 impl EmailSender {
     pub fn new(mailer: Arc<SmtpTransport>, template_dir: PathBuf) -> Self {
         let builder = EmailBuilder::new(template_dir);
-
         Self { mailer, builder }
     }
 

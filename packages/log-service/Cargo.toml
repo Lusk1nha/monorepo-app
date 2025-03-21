@@ -1,0 +1,15 @@
+[package]
+name = "log_service"
+description = "The log service is a simple wrapper around the `tracing` and `tracing-subscriber` crates."
+version = "1.0.0"
+edition = "2024"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = { workspace = true }
+
+tracing = { workspace = true }
+tracing-appender = "0.2.3"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "time"] }
