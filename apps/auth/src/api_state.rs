@@ -71,14 +71,15 @@ impl AppState {
             jwt_config,
         ));
 
+        let mail_service = Arc::new(Self::mail_deliver_service(&environment.smtp_config).await);
+
         let auth_service = Arc::new(AuthService::new(
             Arc::clone(&users_service),
             Arc::clone(&credentials_service),
             Arc::clone(&auth_refresh_tokens_service),
             Arc::clone(&otp_service),
+            Arc::clone(&mail_service),
         ));
-
-        let mail_service = Arc::new(Self::mail_deliver_service(&environment.smtp_config).await);
 
         Ok(Arc::new(Self {
             database,

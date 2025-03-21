@@ -1,7 +1,9 @@
+use mail_sender::errors::MailServiceError;
 use thiserror::Error;
 
 use super::{
-    credentials_errors::CredentialsError, otp_codes_errors::OTPCodesError, repository_errors::RepositoryError, users_errors::UsersError
+    credentials_errors::CredentialsError, otp_codes_errors::OTPCodesError,
+    repository_errors::RepositoryError, users_errors::UsersError,
 };
 
 #[derive(Error, Debug)]
@@ -35,4 +37,7 @@ pub enum AuthServiceError {
 
     #[error("Revoke token error")]
     RevokeRefreshTokenError,
+
+    #[error("Error to send email, {0}")]
+    MailError(#[from] MailServiceError),
 }

@@ -12,7 +12,7 @@ pub fn init_logger() -> WorkerGuard {
         .add_directive(Level::INFO.into())
         .add_directive(Level::WARN.into())
         .add_directive(Level::ERROR.into())
-        .add_directive(Level::TRACE.into());
+        .add_directive(Level::DEBUG.into());
 
     let console_layer = fmt::Layer::default()
         .with_ansi(true)
@@ -25,7 +25,7 @@ pub fn init_logger() -> WorkerGuard {
                 .add_directive(Level::INFO.into())
                 .add_directive(Level::WARN.into())
                 .add_directive(Level::ERROR.into())
-                .add_directive(Level::TRACE.into()),
+                .add_directive(Level::DEBUG.into()),
         );
 
     tracing_subscriber::registry()

@@ -26,7 +26,7 @@ impl UsersRepository {
             Self::TABLE
         ))
         .bind(&id)
-        .fetch_optional(&self.database.pool)
+        .fetch_optional(&*self.database.pool.lock().await)
         .await
         .map_err(|e| match e {
             sqlx::Error::Database(db_err) if db_err.is_unique_violation() => {
@@ -45,7 +45,7 @@ impl UsersRepository {
             Self::TABLE
         ))
         .bind(&email)
-        .fetch_optional(&self.database.pool)
+        .fetch_optional(&*self.database.pool.lock().await)
         .await
         .map_err(|e| match e {
             sqlx::Error::Database(db_err) if db_err.is_unique_violation() => {
@@ -62,7 +62,7 @@ impl UsersRepository {
         id: &str,
         create_user: &CreateUser,
     ) -> Result<User, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let user = sqlx::query_as::<_, User>(&format!(
             "INSERT INTO {} (id, email, name, image, otp_secret)
@@ -95,7 +95,7 @@ impl UsersRepository {
         user_id: &str,
         payload: UpdateUser,
     ) -> Result<User, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let mut query_builder = QueryBuilder::new(&format!("UPDATE {} SET ", Self::TABLE));
 
@@ -179,7 +179,7 @@ impl UsersRepository {
     }
 
     pub async fn update_last_login_at(&self, user_id: &str) -> Result<User, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let user: User = sqlx::query_as::<_, User>(&format!(
             "UPDATE {} SET last_login_at = now() WHERE id = $1 RETURNING {}",
@@ -202,7 +202,7 @@ impl UsersRepository {
     }
 
     pub async fn delete_user(&self, user_id: &str) -> Result<(), RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         sqlx::query(&format!("DELETE FROM {} WHERE id = $1", Self::TABLE))
             .bind(&user_id)

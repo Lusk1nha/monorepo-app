@@ -28,7 +28,7 @@ impl AuthRefreshTokensRepository {
             Self::TABLE
         ))
         .bind(id)
-        .fetch_optional(&self.database.pool)
+        .fetch_optional(&*self.database.pool.lock().await)
         .await
         .map_err(Into::into)
     }
@@ -43,7 +43,7 @@ impl AuthRefreshTokensRepository {
             Self::TABLE
         ))
         .bind(&hash)
-        .fetch_optional(&self.database.pool)
+        .fetch_optional(&*self.database.pool.lock().await)
         .await
         .map_err(Into::into)
     }
@@ -53,7 +53,7 @@ impl AuthRefreshTokensRepository {
         id: &str,
         payload: &CreateAuthRefreshToken,
     ) -> Result<AuthRefreshToken, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let token = sqlx::query_as::<_, AuthRefreshToken>(&format!(
             "INSERT INTO {} (id, user_id, token_hash, expires_at) 
@@ -85,7 +85,7 @@ impl AuthRefreshTokensRepository {
         id: &str,
         payload: &UpdateAuthRefreshToken,
     ) -> Result<AuthRefreshToken, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let token = sqlx::query_as::<_, AuthRefreshToken>(&format!(
             "UPDATE {} SET token_hash = $2, expires_at = $3
@@ -115,7 +115,7 @@ impl AuthRefreshTokensRepository {
         id: &str,
         revoked_at: DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         sqlx::query(&format!(
             "UPDATE {} SET revoked_at = $2

@@ -1,11 +1,6 @@
 use std::sync::Arc;
 
-use axum::{
-    Json,
-    extract::State,
-    http::{HeaderMap, StatusCode},
-    response::IntoResponse,
-};
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use axum_extra::extract::CookieJar;
 
 use crate::{
@@ -18,6 +13,7 @@ use crate::{
         error_response::ErrorResponse,
         errors_types::{bad_request_error, internal_server_error},
     },
+    entities::user_entity::User,
     models::auth_model::{
         CheckEmailAvailabilityRequest, CheckEmailAvailabilityResponse, LoginWithCredentials,
         LoginWithCredentialsResponse, RegisterWithCredentials, RegisterWithCredentialsResponse,
@@ -32,44 +28,22 @@ impl AuthController {
         State(state): State<Arc<AppState>>,
         ValidatedJson(payload): ValidatedJson<RegisterWithCredentials>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
-        let email = payload.email.trim().to_lowercase();
+        let email = payload.email.normalize();
         let password = payload.password;
 
-        let existing_user = state
-            .users_service
-            .get_user_by_email(&email)
-            .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    email = %email,
-                    "Error checking existing user."
-                );
-                internal_server_error("Error checking existing user.")
-            })?;
-
-        if existing_user.is_some() {
-            return Err(bad_request_error("User with this email already exists."));
-        }
+        Self::is_check_email_availability(&state, &email).await?;
 
         state
             .auth_service
             .register_user_with_credentials(&email, &password)
             .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    email = %email,
-                    "Error registering user with credentials."
-                );
-                internal_server_error("Error registering user with credentials.")
-            })?;
+            .map_err(|e| Self::service_error(e, "Error registering user"))?;
 
-        Ok((
+        Ok(Self::build_response(
             StatusCode::CREATED,
-            Json(RegisterWithCredentialsResponse {
+            RegisterWithCredentialsResponse {
                 message: "User registered successfully.".to_string(),
-            }),
+            },
         ))
     }
 
@@ -77,67 +51,26 @@ impl AuthController {
         State(state): State<Arc<AppState>>,
         ValidatedJson(payload): ValidatedJson<LoginWithCredentials>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
-        let email = payload.email.trim().to_lowercase();
+        let email = payload.email.normalize();
         let password = payload.password;
 
-        let existing_user = state
-            .users_service
-            .get_user_by_email(&email)
-            .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    email = %email,
-                    "Error checking existing user."
-                );
-                internal_server_error("Error checking existing user.")
-            })?;
-
-        if existing_user.is_none() {
-            return Err(bad_request_error("User with this email does not exist."));
-        }
-
-        let user = existing_user.unwrap();
-
-        if !state
-            .credentials_service
-            .verify_user_credentials(&user.id, &password)
-            .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    email = %email,
-                    "Error verifying user credentials."
-                );
-                internal_server_error("Error verifying user credentials.")
-            })?
-        {
-            return Err(bad_request_error("Invalid credentials."));
-        }
+        let user = Self::get_user(&state, &email).await?;
+        Self::verify_credentials(&state, &user.id, &password).await?;
 
         state
-            .otp_service
-            .create_otp_code(&user.id, &user.otp_secret)
+            .auth_service
+            .send_otp_code(&state.environment.smtp_config.smtp_username, &user)
             .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    user_id = %user.id,
-                    "Error creating OTP code."
-                );
-                internal_server_error("Error creating OTP code.")
-            })?;
-
-        Self::sync_update_last_login(&state, &user.id).await;
+            .map_err(|e| Self::service_error(e, "Error sending OTP"))?;
 
         tracing::info!("User {} logged in successfully", user.id);
 
-        Ok((
+        Ok(Self::build_response(
             StatusCode::OK,
-            Json(LoginWithCredentialsResponse {
+            LoginWithCredentialsResponse {
                 user_id: user.id,
                 message: "Logged in successfully, OTP code sent to your email.".to_string(),
-            }),
+            },
         ))
     }
 
@@ -146,136 +79,149 @@ impl AuthController {
         State(state): State<Arc<AppState>>,
         ValidatedJson(payload): ValidatedJson<ValidateOTPCodeRequest>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
-        let code = payload.code.trim();
-        let user_id = payload.user_id.trim();
-
         let session = state
             .auth_service
-            .login_with_otp(&user_id, &code)
+            .login_with_otp(&payload.user_id, &payload.code)
             .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    user_id = %user_id,
-                    "Error logging in with OTP."
-                );
-                internal_server_error("Error logging in with OTP.")
-            })?;
+            .map_err(|e| Self::service_error(e, "Error validating OTP"))?;
 
-        let headers = HeaderMap::new();
+        state
+            .users_service
+            .update_last_login_async(&payload.user_id)
+            .await
+            .map_err(|e| Self::service_error(e, "Error validating OTP"))?;
 
         let jar =
             create_refresh_token_cookie(jar, &session.refresh_token, &session.refresh_token_exp);
 
-        Ok((
-            StatusCode::OK,
-            jar,
-            headers,
-            Json(TokenResponse::from(session)),
-        ))
+        Ok((StatusCode::OK, jar, Json(TokenResponse::from(session))))
     }
 
     pub async fn refresh_token(
         jar: CookieJar,
         State(state): State<Arc<AppState>>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
-        let refresh_token = jar
-            .get(REFRESH_TOKEN_NAME)
-            .map(|c| c.value().to_string())
-            .ok_or_else(|| bad_request_error("Refresh token not found."))?;
+        let refresh_token = Self::extract_refresh_token(jar)?;
 
         let new_session = state
             .auth_service
             .create_new_refresh_token(&refresh_token)
             .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    "Error creating new refresh token."
-                );
-                internal_server_error("Error creating new refresh token.")
-            })?;
+            .map_err(|e| Self::service_error(e, "Error refreshing token"))?;
 
         let jar = create_refresh_token_cookie(
-            jar,
+            CookieJar::new(),
             &new_session.refresh_token,
             &new_session.refresh_token_exp,
         );
 
-        let headers = HeaderMap::new();
-
-        Ok((
-            StatusCode::OK,
-            jar,
-            headers,
-            Json(TokenResponse::from(new_session)),
-        ))
+        Ok((StatusCode::OK, jar, Json(TokenResponse::from(new_session))))
     }
 
     pub async fn logout(
         jar: CookieJar,
         State(state): State<Arc<AppState>>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
-        let refresh_token = jar
-            .get(REFRESH_TOKEN_NAME)
-            .map(|c| c.value().to_string())
-            .ok_or_else(|| bad_request_error("Refresh token not found."))?;
+        let refresh_token = Self::extract_refresh_token(jar)?;
 
         state
             .auth_service
             .revoke_refresh_token(&refresh_token)
             .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    "Error revoking refresh token."
-                );
-                internal_server_error("Error revoking refresh token.")
-            })?;
+            .map_err(|e| Self::service_error(e, "Error revoking token"))?;
 
-        let jar = remove_refresh_token_cookie(jar);
-
-        let headers = HeaderMap::new();
-
-        Ok((StatusCode::NO_CONTENT, jar, headers, ()))
+        Ok((
+            StatusCode::NO_CONTENT,
+            remove_refresh_token_cookie(CookieJar::new()),
+        ))
     }
 
     pub async fn check_email_availability(
         State(state): State<Arc<AppState>>,
         ValidatedJson(payload): ValidatedJson<CheckEmailAvailabilityRequest>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
-        let email = payload.email.trim().to_lowercase();
-
+        let email = payload.email.normalize();
         let is_available = state
             .users_service
             .is_email_available(&email)
             .await
-            .map_err(|e| {
-                tracing::error!(
-                    error = %e,
-                    email = %email,
-                    "Error checking email availability."
-                );
-                internal_server_error("Error checking email availability.")
-            })?;
+            .map_err(|e| Self::service_error(e, "Error checking email"))?;
 
-        Ok((
+        Ok(Self::build_response(
             StatusCode::OK,
-            Json(CheckEmailAvailabilityResponse {
+            CheckEmailAvailabilityResponse {
                 email,
                 is_available,
-            }),
+            },
         ))
     }
 
-    async fn sync_update_last_login(state: &Arc<AppState>, user_id: &str) {
-        let state = state.clone();
-        let user_id = user_id.to_string();
+    // Helper methods
+    async fn is_check_email_availability(
+        state: &Arc<AppState>,
+        email: &str,
+    ) -> Result<(), ErrorResponse> {
+        if state
+            .users_service
+            .is_email_available(email)
+            .await
+            .map_err(|e| Self::service_error(e, "Error checking email"))?
+        {
+            Ok(())
+        } else {
+            Err(bad_request_error("Email already exists"))
+        }
+    }
 
-        tokio::spawn(async move {
-            if let Err(e) = state.users_service.update_last_login_at(&user_id).await {
-                tracing::error!("Failed to update last login for user {}: {}", user_id, e);
-            }
-        });
+    async fn get_user(state: &Arc<AppState>, email: &str) -> Result<User, ErrorResponse> {
+        state
+            .users_service
+            .get_user_by_email(email)
+            .await
+            .map_err(|e| Self::service_error(e, "Error finding user"))?
+            .ok_or_else(|| bad_request_error("User not found"))
+    }
+
+    async fn verify_credentials(
+        state: &Arc<AppState>,
+        user_id: &str,
+        password: &str,
+    ) -> Result<(), ErrorResponse> {
+        let is_valid = state
+            .credentials_service
+            .verify_user_credentials(user_id, password)
+            .await
+            .map_err(|e| Self::service_error(e, "Error verifying credentials"))?;
+
+        if is_valid {
+            Ok(())
+        } else {
+            Err(bad_request_error("Invalid credentials"))
+        }
+    }
+
+    fn extract_refresh_token(jar: CookieJar) -> Result<String, ErrorResponse> {
+        jar.get(REFRESH_TOKEN_NAME)
+            .map(|c| c.value().to_string())
+            .ok_or_else(|| bad_request_error("Missing refresh token"))
+    }
+
+    fn build_response<T: serde::Serialize>(status: StatusCode, body: T) -> (StatusCode, Json<T>) {
+        (status, Json(body))
+    }
+
+    fn service_error<E: std::fmt::Display>(error: E, context: &str) -> ErrorResponse {
+        tracing::error!(error = %error, "{}", context);
+        internal_server_error(context)
+    }
+}
+
+trait EmailNormalizer {
+    fn normalize(&self) -> String;
+}
+
+impl EmailNormalizer for String {
+    fn normalize(&self) -> String {
+        self.trim().to_lowercase()
     }
 }

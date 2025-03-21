@@ -1,7 +1,9 @@
 use chrono::Utc;
+use mail_sender::{MailService, errors::MailServiceError};
 use std::sync::Arc;
 
 use crate::{
+    emails::auth_emails::AuthEmailType,
     entities::{auth_refresh_token_entity::Session, user_entity::User},
     errors::auth_service_errors::AuthServiceError,
 };
@@ -17,6 +19,8 @@ pub struct AuthService {
     credentials_service: Arc<CredentialsService>,
     auth_refresh_tokens_service: Arc<AuthRefreshTokensService>,
     otp_codes_service: Arc<OTPCodesService>,
+
+    mail_service: Arc<MailService>,
 }
 
 impl AuthService {
@@ -25,12 +29,14 @@ impl AuthService {
         credentials_service: Arc<CredentialsService>,
         auth_refresh_tokens_service: Arc<AuthRefreshTokensService>,
         otp_codes_service: Arc<OTPCodesService>,
+        mail_service: Arc<MailService>,
     ) -> Self {
         Self {
             users_service,
             credentials_service,
             auth_refresh_tokens_service,
             otp_codes_service,
+            mail_service,
         }
     }
 
@@ -48,23 +54,15 @@ impl AuthService {
         Ok(user)
     }
 
-    pub async fn login_with_credentials(
-        &self,
-        user: &User,
-        password: &str,
-    ) -> Result<Session, AuthServiceError> {
-        if !self
-            .credentials_service
-            .verify_user_credentials(&user.id, &password)
-            .await?
-        {
-            return Err(AuthServiceError::InvalidCredentials);
-        }
+    pub async fn send_otp_code(&self, from: &str, user: &User) -> Result<(), AuthServiceError> {
+        let otp_code = self
+            .otp_codes_service
+            .create_otp_code(&user.id, &user.otp_secret)
+            .await?;
 
-        self.auth_refresh_tokens_service
-            .create_session(&user.id)
-            .await
-            .map_err(|_| AuthServiceError::CreateAuthRefreshTokenError)
+        Self::queue_otp_code_email(&self, from, &user.email, &otp_code.code).await?;
+
+        Ok(())
     }
 
     pub async fn login_with_otp(
@@ -133,5 +131,24 @@ impl AuthService {
             .revoke_session_by_hash(&stored_session.id)
             .await
             .map_err(|_| AuthServiceError::RevokeRefreshTokenError)
+    }
+
+    async fn queue_otp_code_email(
+        &self,
+        from: &str,
+        user_email: &str,
+        otp_code: &str,
+    ) -> Result<(), MailServiceError> {
+        let email_type = AuthEmailType::OtpCode {
+            from: from.to_string(),
+            to: user_email.to_string(),
+            code: otp_code.to_string(),
+        };
+
+        let email_request = email_type.build_request();
+
+        self.mail_service.queue_email(email_request).await?;
+
+        Ok(())
     }
 }

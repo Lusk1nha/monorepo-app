@@ -4,6 +4,7 @@ pub mod controllers;
 pub mod cookies;
 pub mod core;
 pub mod database;
+pub mod emails;
 pub mod entities;
 pub mod environment;
 pub mod errors;

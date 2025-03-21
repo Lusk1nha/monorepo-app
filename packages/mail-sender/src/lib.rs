@@ -13,7 +13,7 @@ use tera::Context;
 use tokio::sync::mpsc;
 
 mod build;
-mod errors;
+pub mod errors;
 mod load;
 mod render;
 mod sender;

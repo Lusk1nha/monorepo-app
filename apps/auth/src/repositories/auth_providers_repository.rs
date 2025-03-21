@@ -21,7 +21,7 @@ impl AuthProvidersRepository {
         &self,
         create_auth_provider: &CreateAuthProvider,
     ) -> Result<AuthProvider, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let auth_provider = sqlx::query_as::<_, AuthProvider>(&format!(
             "INSERT INTO {} (user_id, provider, provider_user_id, access_token, refresh_token, token_expires_at) 

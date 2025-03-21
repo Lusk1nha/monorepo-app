@@ -24,7 +24,7 @@ impl CredentialsRepository {
             Self::TABLE
         ))
         .bind(&user_id)
-        .fetch_optional(&self.database.pool)
+        .fetch_optional(&*self.database.pool.lock().await)
         .await
         .map_err(Into::into)
     }
@@ -34,7 +34,7 @@ impl CredentialsRepository {
         id: &str,
         create_credential: &CreateCredential,
     ) -> Result<Credential, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let credential = sqlx::query_as::<_, Credential>(&format!(
             "INSERT INTO {} (id, user_id, password_hash, algorithm)
@@ -66,7 +66,7 @@ impl CredentialsRepository {
         user_id: &str,
         payload: &UpdateCredential,
     ) -> Result<Credential, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let credential = sqlx::query_as::<_, Credential>(&format!(
             "UPDATE {} SET password_hash = $2, algorithm = $3

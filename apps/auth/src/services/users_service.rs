@@ -93,11 +93,15 @@ impl UsersService {
         Ok(user)
     }
 
-    pub async fn update_last_login_at(&self, user_id: &str) -> Result<(), UsersError> {
-        self.users_repository
-            .update_last_login_at(user_id)
-            .await
-            .map_err(UsersError::Database)?;
+    pub async fn update_last_login_async(&self, user_id: &str) -> Result<(), UsersError> {
+        let repository = self.users_repository.clone();
+        let user_id = user_id.to_string();
+
+        tokio::spawn(async move {
+            if let Err(e) = repository.update_last_login_at(&user_id).await {
+                tracing::error!("Failed to update last login for user {}: {}", user_id, e);
+            }
+        });
 
         Ok(())
     }

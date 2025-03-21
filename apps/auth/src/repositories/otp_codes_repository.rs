@@ -27,7 +27,7 @@ impl OTPCodesRepository {
             Self::TABLE
         ))
         .bind(&user_id)
-        .fetch_optional(&self.database.pool)
+        .fetch_optional(&*self.database.pool.lock().await)
         .await
         .map_err(Into::into)
     }
@@ -36,7 +36,7 @@ impl OTPCodesRepository {
         &self,
         create_otp_code: &CreateOTPCode,
     ) -> Result<OTPCode, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let otp_code = sqlx::query_as::<_, OTPCode>(&format!(
             "INSERT INTO {} (user_id, code, expires_at)
@@ -63,7 +63,7 @@ impl OTPCodesRepository {
     }
 
     pub async fn use_otp_code(&self, id: &i32, user_id: &str) -> Result<OTPCode, RepositoryError> {
-        let mut tx = self.database.pool.begin().await?;
+        let mut tx = self.database.pool.lock().await.begin().await?;
 
         let otp_code = sqlx::query_as::<_, OTPCode>(&format!(
             "UPDATE {} SET is_used = true, used_at = now()
