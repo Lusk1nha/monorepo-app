@@ -31,11 +31,11 @@ services:
     ports:
       - "5050:80"
 
-  api_auth:
+  auth:
     container_name: api_auth
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./apps/auth/Dockerfile
       args:
         DATABASE_URL: "${DATABASE_URL}"
     restart: always
@@ -49,6 +49,8 @@ services:
       ENVIRONMENT: production
     env_file:
       - .env
+    volumes:
+      - ./apps/auth:/usr/src/app/apps/auth
 
 volumes:
   db_data_todo:
