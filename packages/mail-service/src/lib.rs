@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{path::Path, sync::Arc};
 
 use errors::MailServiceError;
 use lettre::{
@@ -73,7 +73,7 @@ impl MailService {
     #[instrument(name = "MailService::new", skip(config, template_dir))]
     pub async fn new(
         config: SMTPConfig,
-        template_dir: Option<PathBuf>,
+        template_dir: &Path,
         queue_capacity: usize,
     ) -> Result<Self, MailServiceError> {
         info!("Initializing MailService");
@@ -81,13 +81,7 @@ impl MailService {
         let mailer = Self::instance_mailer(config).await?;
         debug!("SMTP mailer instance created successfully");
 
-        let template_dir = template_dir.unwrap_or_else(|| {
-            let current_dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-            current_dir.join("templates")
-        });
-        debug!(?template_dir, "Template directory resolved");
-
-        let email_sender = EmailSender::new(Arc::clone(&mailer), template_dir.clone());
+        let email_sender = EmailSender::new(Arc::clone(&mailer), template_dir.to_path_buf());
         debug!("EmailSender instance created");
 
         let (sender, receiver) = mpsc::channel(queue_capacity);

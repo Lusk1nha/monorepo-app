@@ -2,6 +2,9 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum MailServiceError {
+    #[error("Error setting up service: {0}")]
+    SetupService(String),
+
     #[error("Error creating mailer: {0}")]
     CreateMailerError(String),
 

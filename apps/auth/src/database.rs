@@ -1,8 +1,8 @@
-use sqlx::{Pool, Postgres, migrate::Migrator, postgres::PgPoolOptions, Error};
-use std::path::Path;
+use sqlx::{Error, Pool, Postgres, migrate::Migrator, postgres::PgPoolOptions};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 use tracing::{error, info};
 
 use crate::environment::EnvironmentApp;
@@ -23,7 +23,6 @@ impl DatabaseApp {
             environment: environment.clone(),
         };
 
-        // Inicia a tarefa de reconexão automática.
         db_app.start_auto_reconnect();
 
         info!("Database connection pool created");
@@ -33,9 +32,13 @@ impl DatabaseApp {
     pub async fn run_migrations(&self) -> Result<(), Error> {
         const MIGRATIONS_DIR: &str = "migrations";
 
-        let directory = Path::new(MIGRATIONS_DIR);
+        let source_dir = self.environment.manifest_dir.clone();
+        let join_current = PathBuf::from(source_dir).join(MIGRATIONS_DIR);
+
+        let directory = Path::new(&join_current);
         if !directory.exists() {
             error!("Migrations directory '{}' not found", MIGRATIONS_DIR);
+
             return Err(Error::Configuration(
                 format!("Migrations directory '{}' does not exist", MIGRATIONS_DIR).into(),
             ));

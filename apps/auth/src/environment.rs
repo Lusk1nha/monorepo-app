@@ -6,6 +6,8 @@ use mail_service::SMTPConfig;
 
 #[derive(Debug, Clone)]
 pub struct EnvironmentApp {
+    pub manifest_dir: String,
+
     pub database_url: String,
     pub port: u16,
     pub is_prod: bool,
@@ -19,6 +21,8 @@ impl EnvironmentApp {
     pub fn new() -> Self {
         dotenv().ok();
         info!("Environment variables loaded");
+
+        let manifest_dir = Self::get_env_var("CARGO_MANIFEST_DIR");
 
         let database_url = Self::get_env_var("DATABASE_URL");
         let jwt_secret = Self::get_env_var("JWT_SECRET");
@@ -40,6 +44,8 @@ impl EnvironmentApp {
         }
 
         Self {
+            manifest_dir,
+
             database_url,
             port,
             is_prod,
