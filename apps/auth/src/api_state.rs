@@ -1,7 +1,7 @@
 use std::{path::PathBuf, sync::Arc};
 
 use chrono::TimeDelta;
-use mail_sender::{MailService, SMTPConfig};
+use mail_service::{MailService, SMTPConfig};
 
 use crate::{
     database::DatabaseApp,
@@ -98,7 +98,7 @@ impl AppState {
 
     async fn mail_deliver_service(config: &SMTPConfig) -> MailService {
         let source_dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-        let template_dir = source_dir.join("templates");
+        let template_dir = source_dir.join("src/templates");
 
         let mail = MailService::new(config.clone(), Some(template_dir), 100)
             .await

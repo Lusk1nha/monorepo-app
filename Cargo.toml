@@ -3,7 +3,7 @@ members = [
   "./apps/auth",
   "apps/todos",
   "packages/log-service",
-  "packages/mail-sender",
+  "packages/mail-service",
 ]
 resolver = "2"
 

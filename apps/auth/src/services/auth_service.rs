@@ -1,5 +1,5 @@
 use chrono::Utc;
-use mail_sender::{MailService, errors::MailServiceError};
+use mail_service::{MailService, errors::MailServiceError};
 use std::sync::Arc;
 
 use crate::{

@@ -63,16 +63,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in library 'mail_sender'",
+      "name": "Debug unit tests in library 'mail_service'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
           "--lib",
-          "--package=mail_sender"
+          "--package=mail_service"
         ],
         "filter": {
-          "name": "mail_sender",
+          "name": "mail_service",
           "kind": "lib"
         }
       },
@@ -82,15 +82,15 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'mail_sender'",
+      "name": "Debug executable 'mail_service'",
       "cargo": {
         "args": [
           "build",
-          "--bin=mail_sender",
-          "--package=mail_sender"
+          "--bin=mail_service",
+          "--package=mail_service"
         ],
         "filter": {
-          "name": "mail_sender",
+          "name": "mail_service",
           "kind": "bin"
         }
       },
@@ -100,16 +100,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'mail_sender'",
+      "name": "Debug unit tests in executable 'mail_service'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=mail_sender",
-          "--package=mail_sender"
+          "--bin=mail_service",
+          "--package=mail_service"
         ],
         "filter": {
-          "name": "mail_sender",
+          "name": "mail_service",
           "kind": "bin"
         }
       },

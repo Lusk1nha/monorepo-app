@@ -2,7 +2,7 @@ use dotenv::dotenv;
 use std::env;
 use tracing::{info, warn};
 
-use mail_sender::SMTPConfig;
+use mail_service::SMTPConfig;
 
 #[derive(Debug, Clone)]
 pub struct EnvironmentApp {
