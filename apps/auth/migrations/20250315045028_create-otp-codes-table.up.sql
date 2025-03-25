@@ -12,24 +12,6 @@ DO $$ BEGIN IF NOT EXISTS (
   SELECT 1
   FROM pg_attribute
   WHERE attrelid = 'users'::regclass
-    AND attname = 'is_2fa_enabled'
-) THEN
-ALTER TABLE users
-ADD COLUMN is_2fa_enabled BOOLEAN NOT NULL DEFAULT TRUE;
-END IF;
-IF NOT EXISTS (
-  SELECT 1
-  FROM pg_attribute
-  WHERE attrelid = 'users'::regclass
-    AND attname = 'is_email_verified'
-) THEN
-ALTER TABLE users
-ADD COLUMN is_email_verified BOOLEAN NOT NULL DEFAULT FALSE;
-END IF;
-IF NOT EXISTS (
-  SELECT 1
-  FROM pg_attribute
-  WHERE attrelid = 'users'::regclass
     AND attname = 'otp_secret'
 ) THEN
 ALTER TABLE users

@@ -13,13 +13,15 @@ use crate::{
     repositories::{
         auth_providers_repository::AuthProvidersRepository,
         auth_refresh_token_repository::AuthRefreshTokensRepository,
-        credentials_repository::CredentialsRepository, otp_codes_repository::OTPCodesRepository,
-        users_repository::UsersRepository,
+        credentials_repository::CredentialsRepository,
+        email_verifications_repository::EmailVerificationsRepository,
+        otp_codes_repository::OTPCodesRepository, users_repository::UsersRepository,
     },
     services::{
         auth_providers_service::AuthProvidersService,
         auth_refresh_token_service::AuthRefreshTokensService, auth_service::AuthService,
-        credentials_service::CredentialsService, otp_codes_service::OTPCodesService,
+        credentials_service::CredentialsService,
+        email_verifications_service::EmailVerificationsService, otp_codes_service::OTPCodesService,
         users_service::UsersService,
     },
     utils::jwt::JwtConfig,
@@ -49,6 +51,13 @@ impl AppState {
         let otp_service = Arc::new(OTPCodesService::new(
             OTPCodesRepository::new(database.clone()),
             TimeDelta::minutes(5),
+        ));
+
+        let email_verifications_service = Arc::new(EmailVerificationsService::new(
+            EmailVerificationsRepository::new(database.clone()),
+            TimeDelta::days(1),
+            environment.hmac_secret.clone(),
+            environment.web_page_config.clone(),
         ));
 
         let users_service = Arc::new(UsersService::new(
@@ -82,6 +91,7 @@ impl AppState {
             Arc::clone(&credentials_service),
             Arc::clone(&auth_refresh_tokens_service),
             Arc::clone(&otp_service),
+            Arc::clone(&email_verifications_service),
             Arc::clone(&mail_service),
         ));
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Código OTP</title>
+    <title>Ative sua conta</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,15 +31,23 @@
             border-radius: 8px 8px 0 0;
         }
 
-        .otp-code {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
+        .activation-link {
             margin: 20px 0;
-            padding: 10px;
+            padding: 15px;
             background: #f8f9fa;
-            display: inline-block;
             border-radius: 5px;
+            word-break: break-all;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 20px 0;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
         }
 
         .footer {
@@ -53,10 +61,19 @@
 
 <body>
     <div class="container">
-        <div class="header">Seu Código OTP</div>
-        <p>Use o código abaixo para continuar seu processo de login ou verificação.</p>
-        <div class="otp-code">{{ code }}</div>
-        <p>Este código expira em 10 minutos.</p>
+        <div class="header">Confirme seu e-mail</div>
+        <p>Clique no link abaixo para ativar sua conta:</p>
+
+        <a href="{{ confirmation_link }}" class="button">Ativar Minha Conta</a>
+
+        <div class="activation-link">
+            <small>Ou copie e cole este link no seu navegador:</small><br>
+            {{ confirmation_link }}
+        </div>
+
+        <p>Se você não criou esta conta, por favor ignore este e-mail.</p>
+        <p>Este link expira em 24 horas.</p>
+
         <div class="footer">
             <p>&copy; 2025 - Todos os direitos reservados.</p>
         </div>

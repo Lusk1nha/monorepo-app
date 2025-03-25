@@ -17,7 +17,7 @@ use crate::{
     models::auth_model::{
         CheckEmailAvailabilityRequest, CheckEmailAvailabilityResponse, LoginWithCredentials,
         LoginWithCredentialsResponse, RegisterWithCredentials, RegisterWithCredentialsResponse,
-        TokenResponse, ValidateOTPCodeRequest,
+        SendConfirmEmailRequest, SendConfirmEmailResponse, TokenResponse, ValidateOTPCodeRequest,
     },
 };
 
@@ -33,16 +33,23 @@ impl AuthController {
 
         Self::is_check_email_availability(&state, &email).await?;
 
-        state
+        let user = state
             .auth_service
             .register_user_with_credentials(&email, &password)
             .await
             .map_err(|e| Self::service_error(e, "Error registering user"))?;
 
+        state
+            .auth_service
+            .send_confirm_email(&user.id)
+            .await
+            .map_err(|e| Self::service_error(e, "Error sending confirmation email"))?;
+
         Ok(Self::build_response(
             StatusCode::CREATED,
             RegisterWithCredentialsResponse {
-                message: "User registered successfully.".to_string(),
+                user_id: user.id,
+                message: "User registered, please confirm your email.".to_string(),
             },
         ))
     }
@@ -56,6 +63,16 @@ impl AuthController {
 
         let user = Self::get_user(&state, &email).await?;
         Self::verify_credentials(&state, &user.id, &password).await?;
+
+        if !user.is_email_verified {
+            return Ok(Self::build_response(
+                StatusCode::FORBIDDEN,
+                LoginWithCredentialsResponse {
+                    user_id: user.id,
+                    message: "Email not verified, please confirm your email.".to_string(),
+                },
+            ));
+        }
 
         state
             .auth_service
@@ -153,6 +170,24 @@ impl AuthController {
                 email,
                 is_available,
             },
+        ))
+    }
+
+    pub async fn send_confirm_email(
+        State(state): State<Arc<AppState>>,
+        ValidatedJson(payload): ValidatedJson<SendConfirmEmailRequest>,
+    ) -> Result<impl IntoResponse, ErrorResponse> {
+        state
+            .auth_service
+            .send_confirm_email(&payload.email)
+            .await
+            .map_err(|e| Self::service_error(e, "Error sending email"))?;
+
+        Ok((
+            StatusCode::OK,
+            Json(SendConfirmEmailResponse {
+                message: "Email sent successfully.".to_string(),
+            }),
         ))
     }
 

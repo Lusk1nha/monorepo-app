@@ -31,9 +31,9 @@ pub async fn start_server(
 
 fn get_address_by_environment(is_prod: bool, port: u16) -> SocketAddr {
     let ip = if is_prod {
-        [0, 0, 0, 0] // 0.0.0.0
+        [0, 0, 0, 0] 
     } else {
-        [127, 0, 0, 1] // 127.0.0.1
+        [127, 0, 0, 1]
     };
 
     SocketAddr::from((ip, port))

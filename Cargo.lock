@@ -146,6 +146,8 @@ dependencies = [
  "bcrypt",
  "chrono",
  "dotenv",
+ "hex",
+ "hmac",
  "jsonwebtoken",
  "lettre",
  "log_service",

@@ -11,6 +11,10 @@ pub fn auth_routes(state: Arc<AppState>) -> Router {
             post(AuthController::register_with_credentials),
         )
         .route(
+            "/send-confirm-email",
+            post(AuthController::send_confirm_email),
+        )
+        .route(
             "/login-with-credentials",
             post(AuthController::login_with_credentials),
         )
