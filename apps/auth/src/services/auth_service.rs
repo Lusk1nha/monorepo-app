@@ -10,7 +10,8 @@ use crate::{
 
 use super::{
     auth_refresh_token_service::AuthRefreshTokensService, credentials_service::CredentialsService,
-    otp_codes_service::OTPCodesService, users_service::UsersService,
+    email_verifications_service::EmailVerificationsService, otp_codes_service::OTPCodesService,
+    users_service::UsersService,
 };
 
 #[derive(Clone)]
@@ -19,6 +20,7 @@ pub struct AuthService {
     credentials_service: Arc<CredentialsService>,
     auth_refresh_tokens_service: Arc<AuthRefreshTokensService>,
     otp_codes_service: Arc<OTPCodesService>,
+    email_verifications_service: Arc<EmailVerificationsService>,
 
     mail_service: Arc<MailService>,
 }
@@ -29,6 +31,7 @@ impl AuthService {
         credentials_service: Arc<CredentialsService>,
         auth_refresh_tokens_service: Arc<AuthRefreshTokensService>,
         otp_codes_service: Arc<OTPCodesService>,
+        email_verifications_service: Arc<EmailVerificationsService>,
         mail_service: Arc<MailService>,
     ) -> Self {
         Self {
@@ -36,6 +39,8 @@ impl AuthService {
             credentials_service,
             auth_refresh_tokens_service,
             otp_codes_service,
+            email_verifications_service,
+
             mail_service,
         }
     }
@@ -133,6 +138,34 @@ impl AuthService {
             .map_err(|_| AuthServiceError::RevokeRefreshTokenError)
     }
 
+    pub async fn send_confirm_email(&self, user_id: &str) -> Result<(), AuthServiceError> {
+        let user = self.users_service.get_user_by_id(&user_id).await?;
+
+        if user.is_none() {
+            return Err(AuthServiceError::UserNotFound);
+        }
+
+        let user = user.unwrap();
+
+        println!("{}", user.id);
+
+        let confirmation_link = self
+            .email_verifications_service
+            .create_email_verification(&user.id)
+            .await?;
+
+        println!("{}", confirmation_link);
+
+        self.queue_confirm_email(
+            "personalfeedbackapptest@gmail.com",
+            &user.email,
+            confirmation_link,
+        )
+        .await?;
+
+        Ok(())
+    }
+
     async fn queue_otp_code_email(
         &self,
         from: &str,
@@ -143,6 +176,25 @@ impl AuthService {
             from: from.to_string(),
             to: user_email.to_string(),
             code: otp_code.to_string(),
+        };
+
+        let email_request = email_type.build_request();
+
+        self.mail_service.queue_email(email_request).await?;
+
+        Ok(())
+    }
+
+    async fn queue_confirm_email(
+        &self,
+        from: &str,
+        user_email: &str,
+        confirmation_link: String,
+    ) -> Result<(), MailServiceError> {
+        let email_type = AuthEmailType::ConfirmEmail {
+            from: from.to_string(),
+            to: user_email.to_string(),
+            confirmation_link,
         };
 
         let email_request = email_type.build_request();

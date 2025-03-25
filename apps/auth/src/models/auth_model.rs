@@ -18,6 +18,8 @@ pub struct RegisterWithCredentials {
 
 #[derive(Serialize)]
 pub struct RegisterWithCredentialsResponse {
+    #[serde(rename = "userId")]
+    pub user_id: String,
     pub message: String,
 }
 
@@ -83,4 +85,18 @@ impl From<Session> for TokenResponse {
             expires_at: session.access_token_exp,
         }
     }
+}
+
+#[derive(Deserialize, Validate)]
+pub struct SendConfirmEmailRequest {
+    #[validate(
+        email(message = "Email is invalid"),
+        length(min = 1, message = "Email is required")
+    )]
+    pub email: String,
+}
+
+#[derive(Serialize)]
+pub struct SendConfirmEmailResponse {
+    pub message: String,
 }

@@ -2,8 +2,8 @@ use mail_service::errors::MailServiceError;
 use thiserror::Error;
 
 use super::{
-    credentials_errors::CredentialsError, otp_codes_errors::OTPCodesError,
-    repository_errors::RepositoryError, users_errors::UsersError,
+    credentials_errors::CredentialsError, email_verifications_errors::EmailVerificationsError,
+    otp_codes_errors::OTPCodesError, repository_errors::RepositoryError, users_errors::UsersError,
 };
 
 #[derive(Error, Debug)]
@@ -40,4 +40,7 @@ pub enum AuthServiceError {
 
     #[error("Error to send email, {0}")]
     MailError(#[from] MailServiceError),
+
+    #[error("Error creating email verification")]
+    CreateEmailVerificationError(#[from] EmailVerificationsError),
 }
