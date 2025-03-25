@@ -1,5 +1,5 @@
 [package]
-name = "mail_sender"
+name = "mail_service"
 description = "The mail service is a simple wrapper around the `lettre` crate."
 version = "1.0.0"
 edition = "2024"

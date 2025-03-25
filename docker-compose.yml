@@ -3,39 +3,41 @@ version: '3.8'
 services:
   db:
     container_name: todo_db
-    image: postgres
+    image: postgres:latest
     restart: always
     ports:
       - "${DATABASE_PORT}:${DATABASE_PORT}"
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
-      PGUSER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_MAX_CONNECTIONS: 100
     volumes:
       - db_data_todo:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   pgadmin:
     container_name: pgadmin4_container
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-root}
     ports:
       - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
 
-  api_auth:
+  auth:
     container_name: api_auth
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./apps/auth/Dockerfile
       args:
         DATABASE_URL: "${DATABASE_URL}"
     restart: always
@@ -49,6 +51,8 @@ services:
       ENVIRONMENT: production
     env_file:
       - .env
+    volumes:
+      - ./apps/auth:/app/apps/auth  # Ajuste o caminho para /app (diretório de trabalho no Dockerfile)
 
 volumes:
   db_data_todo:

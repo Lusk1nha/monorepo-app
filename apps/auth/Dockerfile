@@ -14,8 +14,8 @@ ENV ENVIRONMENT=production
 # Copiar o arquivo Cargo.toml e Cargo.lock primeiro (para cache)
 COPY Cargo.toml ./ 
 
-# Baixar dependências (isso evita refazer o download se não houver mudanças no Cargo.toml)
-RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo fetch
+# # Baixar dependências (isso evita refazer o download se não houver mudanças no Cargo.toml)
+# RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo fetch
 
 # Copiar o restante dos arquivos do projeto, incluindo pastas como migrations
 COPY . .  
@@ -37,10 +37,12 @@ WORKDIR /app
 COPY --from=builder /app/target/release/auth ./auth
 
 # Copiar as pastas adicionais, como migrations, para a imagem final
-COPY --from=builder /app/migrations ./migrations 
+COPY --from=builder /app/apps/auth/migrations ./migrations 
 
 # Expor a porta do servidor (ajuste conforme necessário)
 EXPOSE 8080
 
 # Comando de inicialização
 CMD ["./auth"]
+
+

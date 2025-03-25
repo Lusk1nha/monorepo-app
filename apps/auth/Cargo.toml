@@ -12,7 +12,7 @@ path = "src/main.rs"
 name = "auth"
 
 [dependencies]
-mail_sender = { path = "../../packages/mail-sender" }
+mail_service = { path = "../../packages/mail-service" }
 log_service = { path = "../../packages/log-service" }
 
 axum = "0.8.1"

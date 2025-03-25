@@ -149,7 +149,7 @@ dependencies = [
  "jsonwebtoken",
  "lettre",
  "log_service",
- "mail_sender",
+ "mail_service",
  "once_cell",
  "rand 0.9.0",
  "rand_core 0.9.3",
@@ -1672,7 +1672,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "mail_sender"
+name = "mail_service"
 version = "1.0.0"
 dependencies = [
  "chrono",

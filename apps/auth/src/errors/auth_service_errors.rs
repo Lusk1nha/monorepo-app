@@ -1,4 +1,4 @@
-use mail_sender::errors::MailServiceError;
+use mail_service::errors::MailServiceError;
 use thiserror::Error;
 
 use super::{

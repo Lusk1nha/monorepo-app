@@ -1,7 +1,11 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use chrono::TimeDelta;
-use mail_sender::{MailService, SMTPConfig};
+use mail_service::{MailService, errors::MailServiceError};
+use tracing::error;
 
 use crate::{
     database::DatabaseApp,
@@ -71,7 +75,7 @@ impl AppState {
             jwt_config,
         ));
 
-        let mail_service = Arc::new(Self::mail_deliver_service(&environment.smtp_config).await);
+        let mail_service = Arc::new(Self::mail_deliver_service(&environment).await?);
 
         let auth_service = Arc::new(AuthService::new(
             Arc::clone(&users_service),
@@ -96,14 +100,30 @@ impl AppState {
         }))
     }
 
-    async fn mail_deliver_service(config: &SMTPConfig) -> MailService {
-        let source_dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-        let template_dir = source_dir.join("templates");
+    async fn mail_deliver_service(
+        environment: &EnvironmentApp,
+    ) -> Result<MailService, MailServiceError> {
+        const TEMPLATES_DIR: &str = "src/templates";
 
-        let mail = MailService::new(config.clone(), Some(template_dir), 100)
+        let config = environment.smtp_config.clone();
+        let source_dir = environment.manifest_dir.clone();
+
+        let join_current = PathBuf::from(source_dir).join(TEMPLATES_DIR);
+
+        let template_dir = Path::new(&join_current);
+
+        if !template_dir.exists() {
+            error!("Templates directory '{}' not found", TEMPLATES_DIR);
+
+            return Err(MailServiceError::SetupService(
+                format!("Templates directory '{}' does not exist", TEMPLATES_DIR).into(),
+            ));
+        }
+
+        let mail = MailService::new(config.clone(), template_dir, 100)
             .await
             .expect("Failed to create mail service");
 
-        mail
+        Ok(mail)
     }
 }

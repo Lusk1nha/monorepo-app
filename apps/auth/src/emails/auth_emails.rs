@@ -1,5 +1,5 @@
 use lettre::message::header::ContentType;
-use mail_sender::EmailRequest;
+use mail_service::EmailRequest;
 use tera::Context;
 
 pub enum AuthEmailType {
