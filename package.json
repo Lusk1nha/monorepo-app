@@ -12,19 +12,22 @@
     "dev": "turbo run dev --parallel --no-cache",
     "format": "pnpm dprint fmt",
     "lint": "turbo run lint --parallel",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "description": "",
   "devDependencies": {
-    "husky": "^9.1.7",
-    "prettier": "^3.5.3",
-    "typescript": "^5.8.2",
     "dprint": "^0.49.0",
     "eslint": "^9.22.0",
-    "turbo": "^2.4.4"
+    "husky": "^9.1.7",
+    "prettier": "^3.5.3",
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2"
   },
-  "packageManager": "pnpm@10.6.1"
+  "packageManager": "pnpm@10.6.1",
+  "dependencies": {
+    "prettier-plugin-tailwindcss": "^0.6.11"
+  }
 }

@@ -1,1 +1,25 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(100% 0 0);
+}
+
+.dark {
+  --background: oklch(20.04% 0.0062 271.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+
+  --font-roboto: 'Roboto', sans-serif;
+  --font-roboto-slab: 'Roboto Slab', serif;
+}
+
+@layer base {
+  * {
+    @apply font-roboto;
+  }
+}
