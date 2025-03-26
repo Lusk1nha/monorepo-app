@@ -1,4 +1,5 @@
 use chrono::{TimeDelta, Utc};
+use tracing::error;
 
 use crate::{
     entities::email_verification_entity::CreateEmailVerification,
@@ -50,13 +51,12 @@ impl EmailVerificationsService {
             .store_email_verification(id, &payload)
             .await?;
 
-        let confirmation_link =
-            format!("{}?token={}", self.join_confirm_path(), token);
+        let confirmation_link = format!("{}?token={}", self.join_confirm_path(), token);
 
         Ok(confirmation_link)
     }
 
-    pub async fn confirm_email(
+    pub async fn confirm_email_verification(
         &self,
         user_id: &str,
         token: &str,
@@ -64,8 +64,12 @@ impl EmailVerificationsService {
         self.validate_email(user_id, token).await?;
 
         self.email_verifications_repository
-            .mark_as_used(user_id)
-            .await?;
+            .mark_as_used(user_id, token)
+            .await
+            .map_err(|e| {
+                error!("Error marking email verification as used: {:?}", e);
+                EmailVerificationsError::Database(e)
+            })?;
 
         Ok(())
     }

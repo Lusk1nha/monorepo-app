@@ -106,6 +106,19 @@ impl UsersService {
         Ok(())
     }
 
+    pub async fn update_email_verified(&self, user_id: &str) -> Result<(), UsersError> {
+        let repository = self.users_repository.clone();
+        let user_id = user_id.to_string();
+
+        tokio::spawn(async move {
+            if let Err(e) = repository.update_email_verified(&user_id).await {
+                tracing::error!("Failed to update last login for user {}: {}", user_id, e);
+            }
+        });
+
+        Ok(())
+    }
+
     pub async fn delete_user(&self, user_id: &str) -> Result<(), UsersError> {
         self.users_repository
             .delete_user(user_id)

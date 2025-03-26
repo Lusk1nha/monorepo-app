@@ -89,14 +89,25 @@ impl From<Session> for TokenResponse {
 
 #[derive(Deserialize, Validate)]
 pub struct SendConfirmEmailRequest {
-    #[validate(
-        email(message = "Email is invalid"),
-        length(min = 1, message = "Email is required")
-    )]
-    pub email: String,
+    #[validate(length(min = 1, message = "User ID is required"))]
+    #[serde(rename = "userId")]
+    pub user_id: String,
 }
 
 #[derive(Serialize)]
 pub struct SendConfirmEmailResponse {
     pub message: String,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct ConfirmEmailRequest {
+    #[validate(length(min = 1, message = "User ID is required"))]
+    #[serde(rename = "userId")]
+    pub user_id: String,
+
+    #[validate(length(
+        min = 1,
+        message = "Confirmation code must be at least 1 character long"
+    ))]
+    pub token: String,
 }

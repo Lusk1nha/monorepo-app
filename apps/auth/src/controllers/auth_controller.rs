@@ -15,9 +15,10 @@ use crate::{
     },
     entities::user_entity::User,
     models::auth_model::{
-        CheckEmailAvailabilityRequest, CheckEmailAvailabilityResponse, LoginWithCredentials,
-        LoginWithCredentialsResponse, RegisterWithCredentials, RegisterWithCredentialsResponse,
-        SendConfirmEmailRequest, SendConfirmEmailResponse, TokenResponse, ValidateOTPCodeRequest,
+        CheckEmailAvailabilityRequest, CheckEmailAvailabilityResponse, ConfirmEmailRequest,
+        LoginWithCredentials, LoginWithCredentialsResponse, RegisterWithCredentials,
+        RegisterWithCredentialsResponse, SendConfirmEmailRequest, SendConfirmEmailResponse,
+        TokenResponse, ValidateOTPCodeRequest,
     },
 };
 
@@ -177,9 +178,11 @@ impl AuthController {
         State(state): State<Arc<AppState>>,
         ValidatedJson(payload): ValidatedJson<SendConfirmEmailRequest>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
+        let user_id = payload.user_id;
+
         state
             .auth_service
-            .send_confirm_email(&payload.email)
+            .send_confirm_email(&user_id)
             .await
             .map_err(|e| Self::service_error(e, "Error sending email"))?;
 
@@ -187,6 +190,29 @@ impl AuthController {
             StatusCode::OK,
             Json(SendConfirmEmailResponse {
                 message: "Email sent successfully.".to_string(),
+            }),
+        ))
+    }
+
+    pub async fn confirm_email(
+        State(state): State<Arc<AppState>>,
+        ValidatedJson(payload): ValidatedJson<ConfirmEmailRequest>,
+    ) -> Result<impl IntoResponse, ErrorResponse> {
+        let user_id = payload.user_id;
+        let token = payload.token;
+
+        println!("user_id: {}, token: {}", user_id, token);
+
+        state
+            .auth_service
+            .confirm_email(&user_id, &token)
+            .await
+            .map_err(|e| Self::service_error(e, "Error confirming email"))?;
+
+        Ok((
+            StatusCode::OK,
+            Json(SendConfirmEmailResponse {
+                message: "Email confirmed successfully.".to_string(),
             }),
         ))
     }

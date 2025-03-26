@@ -201,6 +201,29 @@ impl UsersRepository {
         Ok(user)
     }
 
+    pub async fn update_email_verified(&self, user_id: &str) -> Result<User, RepositoryError> {
+        let mut tx = self.database.pool.lock().await.begin().await?;
+
+        let user: User = sqlx::query_as::<_, User>(&format!(
+            "UPDATE {} SET is_email_verified = true WHERE id = $1 RETURNING {}",
+            Self::TABLE,
+            Self::FIELDS
+        ))
+        .bind(&user_id)
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(|e| match e {
+            sqlx::Error::Database(db_err) if db_err.is_unique_violation() => {
+                RepositoryError::UniqueViolation("id".into())
+            }
+            _ => RepositoryError::from(e),
+        })?;
+
+        tx.commit().await?;
+
+        Ok(user)
+    }
+
     pub async fn delete_user(&self, user_id: &str) -> Result<(), RepositoryError> {
         let mut tx = self.database.pool.lock().await.begin().await?;
 

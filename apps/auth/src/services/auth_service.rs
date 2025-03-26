@@ -139,22 +139,12 @@ impl AuthService {
     }
 
     pub async fn send_confirm_email(&self, user_id: &str) -> Result<(), AuthServiceError> {
-        let user = self.users_service.get_user_by_id(&user_id).await?;
-
-        if user.is_none() {
-            return Err(AuthServiceError::UserNotFound);
-        }
-
-        let user = user.unwrap();
-
-        println!("{}", user.id);
+        let user = self.get_user_by_id(&user_id).await?;
 
         let confirmation_link = self
             .email_verifications_service
             .create_email_verification(&user.id)
             .await?;
-
-        println!("{}", confirmation_link);
 
         self.queue_confirm_email(
             "personalfeedbackapptest@gmail.com",
@@ -162,6 +152,18 @@ impl AuthService {
             confirmation_link,
         )
         .await?;
+
+        Ok(())
+    }
+
+    pub async fn confirm_email(&self, user_id: &str, token: &str) -> Result<(), AuthServiceError> {
+        let user = self.get_user_by_id(&user_id).await?;
+
+        self.email_verifications_service
+            .confirm_email_verification(&user.id, token)
+            .await?;
+
+        self.users_service.update_email_verified(&user.id).await?;
 
         Ok(())
     }
@@ -202,5 +204,17 @@ impl AuthService {
         self.mail_service.queue_email(email_request).await?;
 
         Ok(())
+    }
+
+    async fn get_user_by_id(&self, user_id: &str) -> Result<User, AuthServiceError> {
+        let user = self.users_service.get_user_by_id(&user_id).await?;
+
+        if user.is_none() {
+            return Err(AuthServiceError::UserNotFound);
+        }
+
+        let user = user.unwrap();
+
+        Ok(user)
     }
 }

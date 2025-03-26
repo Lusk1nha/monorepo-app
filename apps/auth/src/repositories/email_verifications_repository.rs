@@ -64,14 +64,16 @@ impl EmailVerificationsRepository {
         Ok(email_verification)
     }
 
-    pub async fn mark_as_used(&self, user_id: &str) -> Result<(), RepositoryError> {
+    pub async fn mark_as_used(&self, user_id: &str, token: &str) -> Result<EmailVerification, RepositoryError> {
         let mut tx = self.database.pool.lock().await.begin().await?;
 
-        sqlx::query_as::<_, EmailVerification>(&format!(
-            "UPDATE {} SET used_at = now() WHERE user_id = $1",
-            Self::TABLE
+        let email_verification = sqlx::query_as::<_, EmailVerification>(&format!(
+            "UPDATE {} SET used_at = now() WHERE user_id = $1 AND token = $2 AND used_at IS NULL RETURNING {}",
+            Self::TABLE,
+            Self::FIELDS
         ))
-        .bind(&user_id)
+        .bind(user_id)
+        .bind(token)
         .fetch_one(&mut *tx)
         .await
         .map_err(|e| match e {
@@ -81,6 +83,8 @@ impl EmailVerificationsRepository {
             _ => RepositoryError::from(e),
         })?;
 
-        Ok(())
+        tx.commit().await?;
+
+        Ok(email_verification)
     }
 }
