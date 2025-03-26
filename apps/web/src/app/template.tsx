@@ -8,7 +8,7 @@ export default function Template({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className={`${roboto.className} ${robotoSlab.className} antialiased`}>
-      <div className="bg-background min-h-screen w-full">
+      <div className="bg-background min-h-screen h-screen w-full">
         {children}
       </div>
     </div>
