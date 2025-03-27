@@ -1,22 +1,12 @@
 [workspace]
-members = [
-  "./apps/auth",
-  "apps/todos",
-  "packages/log-service",
-  "packages/mail-service",
-]
+members = ["./apps/auth", "apps/todos", "libs/log-service", "libs/mail-service"]
 resolver = "2"
 
 [workspace.dependencies]
-lettre = { version = "0.11.13", default-features = false, features = [
-  "smtp-transport",
-  "tokio1-rustls-tls",
-  "hostname",
-  "builder",
-] }
-tokio = { version = "1.43.0", features = ["full"] }
-tera = "1.20.0"
-serde = { version = "1.0.217", features = ["derive"] }
 chrono = { version = "0.4.40", features = ["serde"] }
-tracing = "0.1.41"
+lettre = { version = "0.11.13", default-features = false, features = ["smtp-transport", "tokio1-rustls-tls", "hostname", "builder"] }
+serde = { version = "1.0.217", features = ["derive"] }
+tera = "1.20.0"
 thiserror = "2.0.12"
+tokio = { version = "1.43.0", features = ["full"] }
+tracing = "0.1.41"

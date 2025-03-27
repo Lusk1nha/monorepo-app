@@ -1,17 +1,14 @@
 {
-  "name": "monorepo-todo-app",
+  "name": "monorepo",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "api:dev": "cargo watch -x run -p auth -w ./apps/auth",
     "web:dev": "turbo run dev --parallel --no-cache",
     "dev": "turbo run dev --parallel --no-cache",
     "format": "pnpm dprint fmt",
     "lint": "turbo run lint --parallel",
+    "test": "turbo run test --parallel",
     "prepare": "husky"
   },
   "keywords": [],
@@ -24,10 +21,8 @@
     "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "turbo": "^2.4.4",
-    "typescript": "^5.8.2"
-  },
-  "packageManager": "pnpm@10.6.1",
-  "dependencies": {
+    "typescript": "^5.8.2",
     "prettier-plugin-tailwindcss": "^0.6.11"
-  }
+  },
+  "packageManager": "pnpm@10.6.1"
 }
