@@ -1,12 +1,10 @@
-import { FieldError } from 'react-hook-form';
+import { FieldError } from 'react-hook-form'
 
 interface ErrorMessageInputProps {
-  error: FieldError;
+  error: FieldError
 }
 
 export function ErrorMessageInput(props: Readonly<ErrorMessageInputProps>) {
-  const { error } = props;
-  return (
-    <p className="text-sm text-destructive font-medium">{error.message}</p>
-  );
+  const { error } = props
+  return <p className='text-sm text-destructive font-medium'>{error.message}</p>
 }

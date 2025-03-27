@@ -1,36 +1,52 @@
-'use client';
+'use client'
 
-import { useForm } from 'react-hook-form';
-import { TextInput } from '../inputs/text-input';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
   SignInPayload,
-  signInValidation
-} from '@/shared/validations/signin-validation';
+  signInValidation,
+} from '@/shared/validations/signin-validation'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { TextInput } from '../inputs/text-input'
 
-import SystemButton from '../ui/button';
-import { delay } from '@/shared/helpers/mock-helper';
+import { delay } from '@/shared/helpers/mock-helper'
+import SystemButton from '../ui/button'
+import { FormContent } from './form-content'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export function SignInForm() {
+  const router = useRouter()
+
   const form = useForm<SignInPayload>({
     defaultValues: {
       email: 'lucaspedro517@gmail.com',
-      password: '123456789'
+      password: '123456789',
     },
-    resolver: zodResolver(signInValidation)
-  });
+    resolver: zodResolver(signInValidation),
+  })
 
-  const { handleSubmit, control, formState } = form;
-  const { isSubmitting, isValid } = formState;
+  const { handleSubmit, control, formState } = form
+  const { isSubmitting, isValid } = formState
 
   async function onSubmit(data: SignInPayload) {
-    await delay(5000);
-    console.log(data);
+    try {
+      const response = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
+
+      console.log(response)
+
+      router.push('/')
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-y-4">
-      <fieldset className="flex flex-col gap-y-4">
+    <FormContent onSubmit={handleSubmit(onSubmit)}>
+      <fieldset className="flex flex-col gap-y-4" disabled={isSubmitting}>
         <TextInput
           name="email"
           control={control}
@@ -56,8 +72,8 @@ export function SignInForm() {
         disabled={!isValid}
         isSubmitting={isSubmitting}
       >
-        Sign In
+        Log In
       </SystemButton>
-    </form>
-  );
+    </FormContent>
+  )
 }

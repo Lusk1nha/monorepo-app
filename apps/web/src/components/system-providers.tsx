@@ -1,13 +1,14 @@
-'use client';
+'use client'
 
-import { ThemeProvider } from './providers/theme-provider';
+import { ThemeProvider } from './providers/theme-provider'
+import { SessionProvider } from 'next-auth/react'
 
 interface SystemProvidersProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 export function SystemProviders(props: Readonly<SystemProvidersProps>) {
-  const { children } = props;
+  const { children } = props
 
   return (
     <ThemeProvider
@@ -17,7 +18,7 @@ export function SystemProviders(props: Readonly<SystemProvidersProps>) {
       disableTransitionOnChange
       storageKey="web::theme"
     >
-      {children}
+      <SessionProvider>{children}</SessionProvider>
     </ThemeProvider>
-  );
+  )
 }

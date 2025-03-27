@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import { FieldError } from 'react-hook-form';
-import { ErrorMessageInput } from './error-message-input';
-import { memo } from 'react';
+import { memo } from 'react'
+import { FieldError } from 'react-hook-form'
+import { ErrorMessageInput } from './error-message-input'
 
 interface WrapperErrorMessageInputProps {
-  error: FieldError | undefined;
-  children: React.ReactNode;
+  error: FieldError | undefined
+  children: React.ReactNode
 }
 
 function WrapperErrorMessageInput(
-  props: Readonly<WrapperErrorMessageInputProps>
+  props: Readonly<WrapperErrorMessageInputProps>,
 ) {
-  const { error, children } = props;
+  const { error, children } = props
 
   return (
-    <div className="flex flex-col gap-y-1">
+    <div className='flex flex-col gap-y-1'>
       {children}
       {error && <ErrorMessageInput error={error} />}
     </div>
-  );
+  )
 }
 
-export default memo(WrapperErrorMessageInput);
+export default memo(WrapperErrorMessageInput)

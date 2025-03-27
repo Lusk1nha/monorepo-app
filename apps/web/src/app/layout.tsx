@@ -1,23 +1,23 @@
-import type { Metadata } from 'next';
-import { SystemProviders } from '@/components/system-providers';
+import { SystemProviders } from '@/components/system-providers'
+import type { Metadata } from 'next'
 
-import './globals.css';
+import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Browser Markdown Editor',
-  description: 'A markdown editor that runs in the browser'
-};
+  description: 'A markdown editor that runs in the browser',
+}
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang='en'>
       <body>
         <SystemProviders>{children}</SystemProviders>
       </body>
     </html>
-  );
+  )
 }

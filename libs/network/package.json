@@ -1,0 +1,24 @@
+{
+  "name": "@monorepo/network",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@10.6.1",
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.28.0"
+  },
+  "files": [
+    "./src/*"
+  ],
+  "types": "./src/index.ts",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "next-auth": "^4.24.11",
+    "ts-node": "^10.9.2"
+  }
+}

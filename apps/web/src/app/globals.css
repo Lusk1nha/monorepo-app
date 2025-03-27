@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@plugin 'tailwindcss-animate';
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -44,8 +44,8 @@
   --color-auth-title: var(--auth-title);
   --color-auth-subtitle: var(--auth-subtitle);
 
-  --font-roboto: 'Roboto', sans-serif;
-  --font-roboto-slab: 'Roboto Slab', serif;
+  --font-roboto: "Roboto", sans-serif;
+  --font-roboto-slab: "Roboto Slab", serif;
 }
 
 @layer base {

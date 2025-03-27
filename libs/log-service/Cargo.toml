@@ -1,8 +1,8 @@
 [package]
 name = "log_service"
-description = "The log service is a simple wrapper around the `tracing` and `tracing-subscriber` crates."
 version = "1.0.0"
 edition = "2024"
+description = "The log service is a simple wrapper around the `tracing` and `tracing-subscriber` crates."
 
 [lib]
 path = "src/lib.rs"
