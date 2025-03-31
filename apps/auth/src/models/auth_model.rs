@@ -35,13 +35,6 @@ pub struct LoginWithCredentials {
     pub password: String,
 }
 
-#[derive(Serialize)]
-pub struct LoginWithCredentialsResponse {
-    #[serde(rename = "userId")]
-    pub user_id: String,
-    pub message: String,
-}
-
 #[derive(Deserialize, Validate)]
 pub struct CheckEmailAvailabilityRequest {
     #[validate(

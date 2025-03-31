@@ -16,9 +16,8 @@ use crate::{
     entities::user_entity::User,
     models::auth_model::{
         CheckEmailAvailabilityRequest, CheckEmailAvailabilityResponse, ConfirmEmailRequest,
-        LoginWithCredentials, LoginWithCredentialsResponse, RegisterWithCredentials,
-        RegisterWithCredentialsResponse, SendConfirmEmailRequest, SendConfirmEmailResponse,
-        TokenResponse, ValidateOTPCodeRequest,
+        LoginWithCredentials, RegisterWithCredentials, RegisterWithCredentialsResponse,
+        SendConfirmEmailRequest, SendConfirmEmailResponse, TokenResponse, ValidateOTPCodeRequest,
     },
 };
 
@@ -56,63 +55,49 @@ impl AuthController {
     }
 
     pub async fn login_with_credentials(
+        jar: CookieJar,
         State(state): State<Arc<AppState>>,
         ValidatedJson(payload): ValidatedJson<LoginWithCredentials>,
     ) -> Result<impl IntoResponse, ErrorResponse> {
         let email = payload.email.normalize();
         let password = payload.password;
 
-        let user = Self::get_user(&state, &email).await?;
+        let user = Self::get_user_by_email(&state, &email).await?;
         Self::verify_credentials(&state, &user.id, &password).await?;
 
-        if !user.is_email_verified {
-            return Ok(Self::build_response(
-                StatusCode::FORBIDDEN,
-                LoginWithCredentialsResponse {
-                    user_id: user.id,
-                    message: "Email not verified, please confirm your email.".to_string(),
-                },
-            ));
-        }
-
-        state
-            .auth_service
-            .send_otp_code(&state.environment.smtp_config.smtp_username, &user)
-            .await
-            .map_err(|e| Self::service_error(e, "Error sending OTP"))?;
-
-        tracing::info!("User {} logged in successfully", user.id);
-
-        Ok(Self::build_response(
-            StatusCode::OK,
-            LoginWithCredentialsResponse {
-                user_id: user.id,
-                message: "Logged in successfully, OTP code sent to your email.".to_string(),
-            },
-        ))
-    }
-
-    pub async fn validate_otp_code(
-        jar: CookieJar,
-        State(state): State<Arc<AppState>>,
-        ValidatedJson(payload): ValidatedJson<ValidateOTPCodeRequest>,
-    ) -> Result<impl IntoResponse, ErrorResponse> {
         let session = state
             .auth_service
-            .login_with_otp(&payload.user_id, &payload.code)
+            .login_with_credentials(&user.id)
             .await
-            .map_err(|e| Self::service_error(e, "Error validating OTP"))?;
+            .map_err(|e| Self::service_error(e, "Error logging in"))?;
 
         state
             .users_service
-            .update_last_login_async(&payload.user_id)
+            .update_last_login_async(&user.id)
             .await
             .map_err(|e| Self::service_error(e, "Error validating OTP"))?;
+
+        tracing::info!("User {} logged in successfully", user.id);
 
         let jar =
             create_refresh_token_cookie(jar, &session.refresh_token, &session.refresh_token_exp);
 
         Ok((StatusCode::OK, jar, Json(TokenResponse::from(session))))
+    }
+
+    pub async fn validate_otp_code(
+        State(state): State<Arc<AppState>>,
+        ValidatedJson(payload): ValidatedJson<ValidateOTPCodeRequest>,
+    ) -> Result<impl IntoResponse, ErrorResponse> {
+        let user = Self::get_user_by_id(&state, &payload.user_id).await?;
+
+        state
+            .auth_service
+            .validate_otp(&user.id, &payload.code)
+            .await
+            .map_err(|e| Self::service_error(e, "Error validating OTP"))?;
+
+        Ok(StatusCode::OK)
     }
 
     pub async fn refresh_token(
@@ -234,10 +219,19 @@ impl AuthController {
         }
     }
 
-    async fn get_user(state: &Arc<AppState>, email: &str) -> Result<User, ErrorResponse> {
+    async fn get_user_by_email(state: &Arc<AppState>, email: &str) -> Result<User, ErrorResponse> {
         state
             .users_service
             .get_user_by_email(email)
+            .await
+            .map_err(|e| Self::service_error(e, "Error finding user"))?
+            .ok_or_else(|| bad_request_error("User not found"))
+    }
+
+    async fn get_user_by_id(state: &Arc<AppState>, user_id: &str) -> Result<User, ErrorResponse> {
+        state
+            .users_service
+            .get_user_by_id(user_id)
             .await
             .map_err(|e| Self::service_error(e, "Error finding user"))?
             .ok_or_else(|| bad_request_error("User not found"))

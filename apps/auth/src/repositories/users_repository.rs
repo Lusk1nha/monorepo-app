@@ -65,8 +65,8 @@ impl UsersRepository {
         let mut tx = self.database.pool.lock().await.begin().await?;
 
         let user = sqlx::query_as::<_, User>(&format!(
-            "INSERT INTO {} (id, email, name, image, otp_secret)
-            VALUES ($1, $2, $3, $4, $5) 
+            "INSERT INTO {} (id, email, name, image, otp_secret, is_email_verified)
+            VALUES ($1, $2, $3, $4, $5, $6) 
             RETURNING {}",
             Self::TABLE,
             Self::FIELDS
@@ -76,6 +76,7 @@ impl UsersRepository {
         .bind(&create_user.name)
         .bind(&create_user.image)
         .bind(&create_user.otp_secret)
+        .bind(true)
         .fetch_one(&mut *tx)
         .await
         .map_err(|e| match e {
