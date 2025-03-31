@@ -6,6 +6,7 @@
     "api:dev": "cargo watch -x run -p auth -w ./apps/auth",
     "web:dev": "turbo run dev --parallel --no-cache",
     "dev": "turbo run dev --parallel --no-cache",
+    "build": "turbo run build --parallel",
     "format": "pnpm dprint fmt",
     "lint": "turbo run lint --parallel",
     "test": "turbo run test --parallel",

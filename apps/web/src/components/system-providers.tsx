@@ -1,7 +1,7 @@
 'use client'
 
-import { ThemeProvider } from './providers/theme-provider'
-import { SessionProvider } from 'next-auth/react'
+import { SidebarStoreProvider } from '@/providers/sidebar-provider'
+import { ThemeProvider } from '../providers/theme-provider'
 
 interface SystemProvidersProps {
   children: React.ReactNode
@@ -18,7 +18,7 @@ export function SystemProviders(props: Readonly<SystemProvidersProps>) {
       disableTransitionOnChange
       storageKey="web::theme"
     >
-      <SessionProvider>{children}</SessionProvider>
+      <SidebarStoreProvider>{children}</SidebarStoreProvider>
     </ThemeProvider>
   )
 }

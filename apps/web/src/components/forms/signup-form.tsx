@@ -1,12 +1,15 @@
 'use client'
 
 import { delay } from '@/shared/helpers/mock-helper'
-import { SignUpPayload, signUpValidation } from '@/shared/validations/signup-validation'
+import {
+  SignUpPayload,
+  signUpValidation,
+} from '@/shared/validations/signup-validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { TextInput } from '../inputs/text-input'
 
-import SystemButton from '../ui/button'
+import { Button } from '@monorepo/ui'
 import { FormContent } from './form-content'
 
 export function SignUpForm() {
@@ -29,41 +32,41 @@ export function SignUpForm() {
 
   return (
     <FormContent onSubmit={handleSubmit(onSubmit)}>
-      <fieldset className='flex flex-col gap-y-4' disabled={isSubmitting}>
+      <fieldset className="flex flex-col gap-y-4" disabled={isSubmitting}>
         <TextInput
-          name='email'
+          name="email"
           control={control}
-          type='text'
-          placeholder='Email'
-          aria-label='Email Address'
-          autoComplete='username'
+          type="text"
+          placeholder="Email"
+          aria-label="Email Address"
+          autoComplete="username"
         />
 
         <TextInput
-          name='password'
+          name="password"
           control={control}
-          type='password'
-          placeholder='Password'
-          aria-label='Password'
+          type="password"
+          placeholder="Password"
+          aria-label="Password"
         />
 
         <TextInput
-          name='confirmPassword'
+          name="confirmPassword"
           control={control}
-          type='password'
-          placeholder='Confirm Password'
-          aria-label='Confirm Password'
+          type="password"
+          placeholder="Confirm Password"
+          aria-label="Confirm Password"
         />
       </fieldset>
 
-      <SystemButton
-        type='submit'
-        className='w-full'
+      <Button
+        type="submit"
+        className="w-full"
         disabled={!isValid}
         isSubmitting={isSubmitting}
       >
         Create Account
-      </SystemButton>
+      </Button>
     </FormContent>
   )
 }

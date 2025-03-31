@@ -2,10 +2,11 @@
 
 import { Control, Controller, FieldValues, Path } from 'react-hook-form'
 
-import SystemInput from '../ui/input'
+import { Input } from '@monorepo/ui'
 import WrapperErrorMessageInput from './wrapper-error-message-input'
 
-interface TextInputProps<T extends FieldValues> extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TextInputProps<T extends FieldValues>
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   name: Path<T>
   control: Control<T>
   disabled?: boolean
@@ -28,7 +29,7 @@ export const TextInput = <T extends FieldValues>({
         fieldState: { error },
       }) => (
         <WrapperErrorMessageInput error={error}>
-          <SystemInput
+          <Input
             id={name}
             name={name}
             value={value ?? ''}

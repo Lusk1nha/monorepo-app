@@ -9,10 +9,11 @@ import { useForm } from 'react-hook-form'
 import { TextInput } from '../inputs/text-input'
 
 import { delay } from '@/shared/helpers/mock-helper'
-import SystemButton from '../ui/button'
+import { Button } from '@monorepo/ui'
 import { FormContent } from './form-content'
-import { signIn } from 'next-auth/react'
+
 import { useRouter } from 'next/navigation'
+import { PATHS } from '@/path'
 
 export function SignInForm() {
   const router = useRouter()
@@ -30,15 +31,9 @@ export function SignInForm() {
 
   async function onSubmit(data: SignInPayload) {
     try {
-      const response = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      })
+      const response = await delay(500)
 
-      console.log(response)
-
-      router.push('/')
+      router.push(PATHS.ROOT)
     } catch (error) {
       console.error(error)
     }
@@ -66,14 +61,15 @@ export function SignInForm() {
         />
       </fieldset>
 
-      <SystemButton
+      <Button
+        variant="default"
         type="submit"
         className="w-full"
         disabled={!isValid}
         isSubmitting={isSubmitting}
       >
         Log In
-      </SystemButton>
+      </Button>
     </FormContent>
   )
 }

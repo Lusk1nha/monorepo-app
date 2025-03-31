@@ -1,3 +1,8 @@
-export async function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+export async function delay(ms: number, callback?: () => void) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      if (callback) callback()
+      resolve(true)
+    }, ms)
+  })
 }
