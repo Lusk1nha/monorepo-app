@@ -1,11 +1,12 @@
+import { cva, VariantProps } from 'class-variance-authority'
 import { forwardRef } from 'react'
 import { cn } from '../lib/utils'
-import { cva, VariantProps } from 'class-variance-authority'
 
-const textVariants = cva('uppercase font-semibold', {
+const textVariants = cva('font-regular', {
   variants: {
     variant: {
-      default: 'text-header-logo font-semibold tracking-[0.313rem]',
+      default: 'text-header-logo font-semibold',
+      title: 'text-title-text font-semibold tracking-[0.313rem]',
       subtitle: 'text-subtitle-text font-medium tracking-[0.125rem]',
     },
     size: {
@@ -20,9 +21,7 @@ const textVariants = cva('uppercase font-semibold', {
   },
 })
 
-export interface TitleProps
-  extends React.HTMLAttributes<HTMLHeadingElement>,
-    VariantProps<typeof textVariants> {
+export interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement>, VariantProps<typeof textVariants> {
   className?: string
   children: React.ReactNode
 }

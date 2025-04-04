@@ -2,9 +2,9 @@
 
 import { forwardRef } from 'react'
 
-import Spinner from './spinner'
-import { cn } from '../lib/utils'
 import { cva, VariantProps } from 'class-variance-authority'
+import { cn } from '../lib/utils'
+import Spinner from './spinner'
 
 const buttonVariants = cva(
   'inline-flex gap-x-2 text-primary items-center justify-center rounded-sm px-3 py-1 cursor-pointer relative transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background',
@@ -28,9 +28,7 @@ const buttonVariants = cva(
   },
 )
 
-export interface SystemButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+export interface SystemButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   disabled?: boolean
   isSubmitting?: boolean
 }
@@ -53,14 +51,14 @@ const Button = forwardRef<HTMLButtonElement, SystemButtonProps>(
         type={type}
         className={cn(
           buttonVariants({ variant, size, className }),
-          (disabled || isSubmitting) &&
-            'cursor-not-allowed opacity-50 pointer-events-none',
+          (disabled || isSubmitting)
+            && 'cursor-not-allowed opacity-50 pointer-events-none',
         )}
         ref={ref}
         {...rest}
       >
         {children ?? 'Button'}
-        {isSubmitting && <Spinner className="size-5 text-white" />}
+        {isSubmitting && <Spinner className='size-5 text-white' />}
       </button>
     )
   },

@@ -1,7 +1,7 @@
 import { SignUpForm } from '@/components/forms/signup-form'
+import { PATHS } from '@/path'
 import { AuthContent } from '../../__components/auth-content'
 import { AuthHeader } from '../../__components/auth-header'
-import { PATHS } from '@/path'
 
 export default function SignUpPage() {
   return (
@@ -11,8 +11,8 @@ export default function SignUpPage() {
           href: PATHS.SIGNIN,
           text: 'Log in',
         }}
-        title="Create an account"
-        subtitle="Already have an account?"
+        title='Create an account'
+        subtitle='Already have an account?'
       />
 
       <SignUpForm />

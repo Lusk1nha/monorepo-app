@@ -1,13 +1,9 @@
 'use client'
 
-import { createContext, useRef, useContext } from 'react'
+import { createContext, useContext, useRef } from 'react'
 import { useStore } from 'zustand'
 
-import {
-  SidebarState,
-  type SidebarStore,
-  createSidebarStore,
-} from '@/stores/sidebar-store'
+import { createSidebarStore, SidebarState, type SidebarStore } from '@/stores/sidebar-store'
 
 export type SidebarStoreApi = ReturnType<typeof createSidebarStore>
 

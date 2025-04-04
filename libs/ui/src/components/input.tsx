@@ -1,8 +1,8 @@
 'use client'
 
 import { cva, VariantProps } from 'class-variance-authority'
-import { cn } from '../lib/utils'
 import { forwardRef, memo } from 'react'
+import { cn } from '../lib/utils'
 
 const inputVariants = cva(
   `text-sm sm:text-base transition-colors px-3 py-1 caret-primary disabled:cursor-not-allowed disabled:opacity-50`,
@@ -10,7 +10,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-input text-input-text rounded-sm shadow-sm border border-input-border ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          'bg-input text-input-text rounded-sm border border-input-border ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         underline:
           'bg-transparent ring-none text-input-text focus-visible:outline-none focus-visible:border-b focus-visible:border-white focus-visible:ring-ring',
       },
@@ -27,9 +27,7 @@ const inputVariants = cva(
   },
 )
 
-interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
-    VariantProps<typeof inputVariants> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, VariantProps<typeof inputVariants> {
   name: string
 }
 

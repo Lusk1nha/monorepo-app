@@ -1,5 +1,5 @@
-@import '@monorepo/ui';
-@import 'tailwindcss';
+@import "@monorepo/ui";
+@import "tailwindcss";
 
 @theme inline {
   --color-background: var(--background);
@@ -14,8 +14,9 @@
 
   --spacing-header-md: 4.5rem;
 
-  --font-roboto: 'Roboto', sans-serif;
-  --font-roboto-slab: 'Roboto Slab', serif;
+  --font-roboto: "Roboto", sans-serif;
+  --font-roboto-slab: "Roboto Slab", serif;
+  --font-commissioner: "Commissioner", sans-serif;
 }
 
 @layer base {

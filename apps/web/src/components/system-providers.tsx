@@ -12,11 +12,11 @@ export function SystemProviders(props: Readonly<SystemProvidersProps>) {
 
   return (
     <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
+      attribute='class'
+      defaultTheme='system'
       enableSystem
       disableTransitionOnChange
-      storageKey="web::theme"
+      storageKey='web::theme'
     >
       <SidebarStoreProvider>{children}</SidebarStoreProvider>
     </ThemeProvider>

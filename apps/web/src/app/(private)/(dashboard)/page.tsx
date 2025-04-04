@@ -6,7 +6,7 @@ import { MarkdownActions } from './__components/markdown-actions'
 export default function DashboardPage() {
   return (
     <NewMarkdownForm>
-      <HeaderDashboard className="flex items-center justify-between pr-4">
+      <HeaderDashboard className='flex items-center justify-between pr-4'>
         <MarkdownActions />
       </HeaderDashboard>
     </NewMarkdownForm>

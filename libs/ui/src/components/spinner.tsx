@@ -13,7 +13,7 @@ const SystemSpinner = forwardRef<HTMLSpanElement, SystemSpinnerProps>(
     const { children, className, ...rest } = props
 
     return (
-      <span className="flex" {...rest} ref={ref}>
+      <span className='flex' {...rest} ref={ref}>
         <Loader2
           className={cn('animate-spin text-primary size-8', className)}
         />

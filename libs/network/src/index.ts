@@ -1,4 +1,4 @@
-import { NextAuthOptions, getServerSession } from 'next-auth'
+import { getServerSession, NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
 const MAX_AGE = 1 * 24 * 60 * 60

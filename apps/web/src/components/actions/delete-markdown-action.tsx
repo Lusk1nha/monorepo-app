@@ -13,13 +13,13 @@ export function DeleteMarkdownAction(
 
   return (
     <Button
-      type="button"
-      variant="ghost"
+      type='button'
+      variant='ghost'
       onClick={onClick}
       title={`Delete markdown ${markdownId}`}
       aria-label={`Delete markdown ${markdownId}`}
     >
-      <Trash2 className="size-5" />
+      <Trash2 className='size-5' />
     </Button>
   )
 }

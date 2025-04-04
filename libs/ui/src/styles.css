@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -8,6 +8,7 @@
   --destructive: oklch(57.71% 0.2151 27.32);
 
   --button: oklch(65.93% 0.1651 36.38);
+  --button-text: oklch(100% 0 0);
   --button-menu: oklch(0.34 0.0118 258.37);
   --button-ghost-text: oklch(0.6 0.0109 252.86);
   --button-hover: oklch(76.08% 0.1287 48.55);
@@ -15,16 +16,21 @@
   --input: oklch(97.02% 0 0);
   --input-text: oklch(34.31% 0.0118 258.37);
   --input-border: oklch(97.02% 0 0);
-
   --input-label: oklch(0.6 0.0109 252.86);
 
-  --auth-title: oklch(100% 0 0);
+  --switch: oklch(0.49 0.0163 258.37);
+  --switch-dot: oklch(1 0 0);
+  --switch-hover: oklch(0.6 0.0109 252.86);
+
+  --auth-title: oklch(20.04% 0.0062 271.1);
   --auth-subtitle: oklch(60.1% 0.0109 252.86);
 
   --aside-background: oklch(0.24 0.0065 258.36);
   --header-background: oklch(0.3 0.0078 264.45);
 
   --header-logo: oklch(100% 0 0);
+
+  --title-text: oklch(100% 0 0);
   --subtitle-text: oklch(0.6 0.0109 252.86);
 
   --separator-background: oklch(0.49 0.0163 258.37);
@@ -37,6 +43,7 @@
   --input-text: oklch(100% 0 0);
   --input-border: oklch(23.84% 0.0065 258.36);
 
+  --auth-title: oklch(100% 0 0);
   --auth-subtitle: oklch(82% 0.0103 267.34);
 }
 
@@ -46,6 +53,7 @@
   --color-destructive: var(--destructive);
 
   --color-button: var(--button);
+  --color-button-text: var(--button-text);
   --color-button-menu: var(--button-menu);
   --color-button-ghost-text: var(--button-ghost-text);
   --color-button-hover: var(--button-hover);
@@ -53,8 +61,11 @@
   --color-input: var(--input);
   --color-input-text: var(--input-text);
   --color-input-border: var(--input-border);
-
   --color-input-label: var(--input-label);
+
+  --color-switch: var(--switch);
+  --color-switch-dot: var(--switch-dot);
+  --color-switch-hover: var(--switch-hover);
 
   --color-auth-title: var(--auth-title);
   --color-auth-subtitle: var(--auth-subtitle);
@@ -62,6 +73,8 @@
   --color-aside-background: var(--aside-background);
   --color-header-background: var(--header-background);
   --color-header-logo: var(--header-logo);
+
+  --color-title-text: var(--title-text);
   --color-subtitle-text: var(--subtitle-text);
 
   --color-separator-background: var(--separator-background);
@@ -82,5 +95,6 @@
     @apply text-aside-background text-header-background;
     @apply text-header-logo text-subtitle-text;
     @apply text-separator-background;
+    @apply text-switch text-switch-dot text-switch-hover;
   }
 }

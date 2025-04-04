@@ -5,8 +5,7 @@ import { Control, Controller, FieldValues, Path } from 'react-hook-form'
 import { Input } from '@monorepo/ui'
 import WrapperErrorMessageInput from './wrapper-error-message-input'
 
-interface TextInputProps<T extends FieldValues>
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TextInputProps<T extends FieldValues> extends React.InputHTMLAttributes<HTMLInputElement> {
   name: Path<T>
   control: Control<T>
   disabled?: boolean

@@ -1,9 +1,6 @@
 'use client'
 
-import {
-  SignInPayload,
-  signInValidation,
-} from '@/shared/validations/signin-validation'
+import { SignInPayload, signInValidation } from '@/shared/validations/signin-validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { TextInput } from '../inputs/text-input'
@@ -12,8 +9,8 @@ import { delay } from '@/shared/helpers/mock-helper'
 import { Button } from '@monorepo/ui'
 import { FormContent } from './form-content'
 
-import { useRouter } from 'next/navigation'
 import { PATHS } from '@/path'
+import { useRouter } from 'next/navigation'
 
 export function SignInForm() {
   const router = useRouter()
@@ -41,30 +38,30 @@ export function SignInForm() {
 
   return (
     <FormContent onSubmit={handleSubmit(onSubmit)}>
-      <fieldset className="flex flex-col gap-y-4" disabled={isSubmitting}>
+      <fieldset className='flex flex-col gap-y-4' disabled={isSubmitting}>
         <TextInput
-          name="email"
+          name='email'
           control={control}
-          type="text"
-          placeholder="Email"
-          aria-label="Email Address"
-          autoComplete="username"
+          type='text'
+          placeholder='Email'
+          aria-label='Email Address'
+          autoComplete='username'
         />
 
         <TextInput
-          name="password"
+          name='password'
           control={control}
-          type="password"
-          placeholder="Password"
-          aria-label="Password"
-          autoComplete="current-password"
+          type='password'
+          placeholder='Password'
+          aria-label='Password'
+          autoComplete='current-password'
         />
       </fieldset>
 
       <Button
-        variant="default"
-        type="submit"
-        className="w-full"
+        variant='default'
+        type='submit'
+        className='w-full'
         disabled={!isValid}
         isSubmitting={isSubmitting}
       >

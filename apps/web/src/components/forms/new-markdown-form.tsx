@@ -1,10 +1,7 @@
 'use client'
 
 import { defaultNewMarkdown } from '@/shared/helpers/markdown-helper'
-import {
-  NewMarkdownPayload,
-  newMarkdownValidation,
-} from '@/shared/validations/markdown-validation'
+import { NewMarkdownPayload, newMarkdownValidation } from '@/shared/validations/markdown-validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 
@@ -33,7 +30,7 @@ export function NewMarkdownForm(props: Readonly<NewMarkdownFormProps>) {
   return (
     <FormProvider {...form}>
       <form
-        className="w-full h-full flex flex-col"
+        className='w-full h-full flex flex-col'
         onSubmit={handleSubmit(onSubmit)}
       >
         {children}

@@ -10,12 +10,12 @@ export function SaveMarkdownAction(props: Readonly<SaveMarkdownActionProps>) {
 
   return (
     <Button
-      type="submit"
+      type='submit'
       title={`Save markdown ${markdownId}`}
       aria-label={`Save markdown ${markdownId}`}
     >
-      <Save className="size-5" />
-      <span className="hidden lg:block">Save Changes</span>
+      <Save className='size-5' />
+      <span className='hidden lg:block'>Save Changes</span>
     </Button>
   )
 }

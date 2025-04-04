@@ -1,5 +1,5 @@
 export const PATHS = {
   ROOT: '/',
-  SIGNIN: '/signin',
-  SIGNUP: '/signup',
+  SIGNIN: '/signIn',
+  SIGNUP: '/signUp',
 }
